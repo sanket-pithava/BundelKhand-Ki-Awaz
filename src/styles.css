@@ -1,0 +1,169 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Harbole brand tokens */
+  --color-navy: var(--navy);
+  --color-orange: var(--orange);
+  --color-gold: var(--gold);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+
+  --font-hindi: "Tiro Devanagari Hindi", "Mukta Vaani", serif;
+  --font-body-hindi: "Mukta Vaani", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --shadow-editorial: 0 1px 2px oklch(0.2 0.04 260 / 0.04),
+    0 8px 24px -12px oklch(0.2 0.04 260 / 0.12);
+  --shadow-elevated: 0 4px 12px -2px oklch(0.2 0.04 260 / 0.08),
+    0 24px 48px -16px oklch(0.2 0.04 260 / 0.18);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Harbole palette */
+  --navy: oklch(0.22 0.045 250);          /* #0B1B2B */
+  --orange: oklch(0.58 0.18 38);          /* #C2410C */
+  --gold: oklch(0.74 0.11 80);            /* #C9A24A */
+  --paper: oklch(0.975 0.012 85);         /* #FAF6EF */
+  --ink: oklch(0.22 0.045 250);
+
+  --background: var(--paper);
+  --foreground: var(--navy);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--navy);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--navy);
+  --primary: var(--navy);
+  --primary-foreground: var(--paper);
+  --secondary: oklch(0.94 0.012 85);
+  --secondary-foreground: var(--navy);
+  --muted: oklch(0.94 0.012 85);
+  --muted-foreground: oklch(0.45 0.02 260);
+  --accent: var(--orange);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0.012 85);
+  --input: oklch(0.9 0.012 85);
+  --ring: var(--orange);
+}
+
+.dark {
+  --navy: oklch(0.16 0.035 250);
+  --paper: oklch(0.22 0.04 250);
+  --background: oklch(0.13 0.03 250);
+  --foreground: oklch(0.96 0.01 85);
+  --card: oklch(0.18 0.035 250);
+  --card-foreground: oklch(0.96 0.01 85);
+  --popover: oklch(0.18 0.035 250);
+  --popover-foreground: oklch(0.96 0.01 85);
+  --primary: var(--gold);
+  --primary-foreground: oklch(0.13 0.03 250);
+  --secondary: oklch(0.22 0.035 250);
+  --secondary-foreground: oklch(0.96 0.01 85);
+  --muted: oklch(0.22 0.035 250);
+  --muted-foreground: oklch(0.7 0.02 85);
+  --accent: var(--orange);
+  --accent-foreground: oklch(1 0 0);
+  --border: oklch(1 0 0 / 0.08);
+  --input: oklch(1 0 0 / 0.12);
+  --ring: var(--gold);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+
+  .font-hindi { font-family: var(--font-hindi); }
+  .font-body-hindi { font-family: var(--font-body-hindi); }
+
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  .grain {
+    background-image: radial-gradient(oklch(0.2 0.04 260 / 0.04) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+@keyframes harbole-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-reveal {
+  animation: harbole-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes harbole-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: harbole-marquee 40s linear infinite;
+}
+.animate-marquee:hover { animation-play-state: paused; }
+
+@keyframes harbole-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.animate-glow { animation: harbole-glow 3s ease-in-out infinite; }
+
+@keyframes harbole-vscroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.animate-vscroll {
+  animation: harbole-vscroll 28s linear infinite;
+}
+.animate-vscroll:hover { animation-play-state: paused; }
