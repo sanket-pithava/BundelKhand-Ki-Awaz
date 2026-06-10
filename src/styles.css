@@ -51,10 +51,14 @@
   --radius: 0.75rem;
 
   /* Harbole palette */
-  --navy: oklch(0.22 0.045 250);          /* #0B1B2B */
-  --orange: oklch(0.58 0.18 38);          /* #C2410C */
-  --gold: oklch(0.74 0.11 80);            /* #C9A24A */
-  --paper: oklch(0.975 0.012 85);         /* #FAF6EF */
+  --navy: oklch(0.22 0.045 250);
+  /* #0B1B2B */
+  --orange: oklch(0.58 0.18 38);
+  /* #C2410C */
+  --gold: oklch(0.74 0.11 80);
+  /* #C9A24A */
+  --paper: oklch(0.975 0.012 85);
+  /* #FAF6EF */
   --ink: oklch(0.22 0.045 250);
 
   --background: var(--paper);
@@ -104,30 +108,51 @@
   * {
     border-color: var(--color-border);
   }
+
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3, h4 {
+
+  h1,
+  h2,
+  h3,
+  h4 {
     letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
-  .font-hindi { font-family: var(--font-hindi); }
-  .font-body-hindi { font-family: var(--font-body-hindi); }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
 
-  .text-balance { text-wrap: balance; }
-  .text-pretty { text-wrap: pretty; }
+  .font-hindi {
+    font-family: var(--font-hindi);
+  }
+
+  .font-body-hindi {
+    font-family: var(--font-body-hindi);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
 
   .grain {
     background-image: radial-gradient(oklch(0.2 0.04 260 / 0.04) 1px, transparent 1px);
@@ -136,8 +161,15 @@
 }
 
 @keyframes harbole-reveal {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-reveal {
@@ -145,25 +177,55 @@
 }
 
 @keyframes harbole-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
+
 .animate-marquee {
-  animation: harbole-marquee 40s linear infinite;
+  animation: harbole-marquee 10s linear infinite;
 }
-.animate-marquee:hover { animation-play-state: paused; }
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
 
 @keyframes harbole-glow {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
-.animate-glow { animation: harbole-glow 3s ease-in-out infinite; }
+
+.animate-glow {
+  animation: harbole-glow 3s ease-in-out infinite;
+}
 
 @keyframes harbole-vscroll {
-  from { transform: translateY(0); }
-  to { transform: translateY(-50%); }
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-50%);
+  }
 }
+
 .animate-vscroll {
   animation: harbole-vscroll 28s linear infinite;
 }
-.animate-vscroll:hover { animation-play-state: paused; }
+
+.animate-vscroll:hover {
+  animation-play-state: paused;
+}

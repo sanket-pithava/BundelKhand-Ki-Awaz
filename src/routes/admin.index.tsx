@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadMedia } from "@/lib/admin/upload";
 import { toast } from "sonner";
-import { Plus, Edit2, Trash2, Save, X } from "lucide-react";
+import { Plus, Edit2, Trash2, Save, X, Upload } from "lucide-react";
 import { PlacementManager } from "@/components/admin/PlacementManager";
 import { ArticleManager } from "@/components/admin/ArticleManager";
 
@@ -117,7 +117,7 @@ const RESOURCES: Resource[] = [
       { key: "name", label: "Name", type: "text" },
       { key: "designation", label: "Designation", type: "text" },
       { key: "quote", label: "Quote", type: "textarea" },
-      { key: "image", label: "Profile Image URL", type: "text" },
+      { key: "image", label: "Profile Image", type: "image" },
       { key: "description", label: "Description (optional)", type: "textarea" },
       { key: "sort_order", label: "Sort Order", type: "number" },
       { key: "status", label: "Active Status", type: "bool" },
