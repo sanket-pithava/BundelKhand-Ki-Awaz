@@ -187,7 +187,7 @@
 }
 
 .animate-marquee {
-  animation: harbole-marquee 10s linear infinite;
+  animation: harbole-marquee 25s linear infinite;
 }
 
 .animate-marquee:hover {
