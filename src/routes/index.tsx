@@ -10,8 +10,10 @@ import { Shakhsiyat } from "@/components/harbole/Shakhsiyat";
 import { ImpactTimeline } from "@/components/harbole/ImpactTimeline";
 import { DistrictGrid } from "@/components/harbole/DistrictGrid";
 import { AmitTripathiShow } from "@/components/harbole/AmitTripathiShow";
+import { AutoScrollingAds } from "@/components/harbole/AutoScrollingAds";
 import { AdBanner } from "@/components/harbole/AdBanner";
 import { Logo } from "@/components/harbole/Logo";
+import { ScrollableRow } from "@/components/harbole/ScrollableRow";
 import {
   HERO,
   TOP10, // kept as fallback if needed for types, but we'll use dynamic
@@ -96,9 +98,9 @@ function HomePage() {
           {homeData?.top10Articles?.length ? (
             <section className="py-6">
               <SectionHeader hindi="बुंदेलखंड Top 10" english="Most Read Today" href="/category/top10" />
-              <div className="flex gap-5 overflow-x-auto px-4 no-scrollbar pb-2">
+              <ScrollableRow className="gap-5 px-4 pb-2">
                 {homeData.top10Articles.map((a, i) => (
-                  <div key={a.slug} className="shrink-0 w-[260px] relative pt-3">
+                  <div key={a.slug} className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3">
                     <span className="absolute -top-1 -left-1 text-[80px] leading-none font-bold text-gold/25 italic select-none font-sans">
                       {String(i + 1).padStart(2, "0")}
                     </span>
@@ -107,7 +109,7 @@ function HomePage() {
                     </div>
                   </div>
                 ))}
-              </div>
+              </ScrollableRow>
             </section>
           ) : null}
 
@@ -116,13 +118,7 @@ function HomePage() {
 
           {/* Ads Carousel */}
           {homeData?.ads && homeData.ads.length > 0 && (
-            <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar">
-              {homeData.ads.map(ad => (
-                <div key={ad.id} className="w-full shrink-0 snap-start">
-                  <AdBanner {...ad} />
-                </div>
-              ))}
-            </div>
+            <AutoScrollingAds ads={homeData.ads} />
           )}
 
 
@@ -153,14 +149,14 @@ function HomePage() {
             {homeData?.reels && homeData.reels.length > 0 && (
               <section className="bg-navy py-10 grain">
                 <SectionHeader hindi="लोक रंग" english="Bundeli Reels" invert />
-                <div className="flex gap-3 overflow-x-auto px-4 no-scrollbar">
+                <ScrollableRow className="gap-3 px-4 pb-2">
                   {homeData.reels.map((r) => (
                     <a
                       key={r.id}
                       href={r.video_url || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="shrink-0 w-[150px] aspect-[9/16] rounded-xl overflow-hidden relative ring-1 ring-white/10 group block"
+                      className="shrink-0 w-[calc(50%-6px)] md:w-[calc(25%-9px)] aspect-[9/16] rounded-xl overflow-hidden relative ring-1 ring-white/10 group block snap-start"
                     >
                       <img src={r.thumbnail} alt={r.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
@@ -176,7 +172,7 @@ function HomePage() {
                       </div>
                     </a>
                   ))}
-                </div>
+                </ScrollableRow>
               </section>
             )}
 
@@ -338,13 +334,13 @@ function CategoryBand({
   return (
     <section className="py-8 md:py-12">
       <SectionHeader hindi={hindi} english={english} href={href} />
-      <div className="flex gap-4 md:gap-6 overflow-x-auto px-4 md:px-6 no-scrollbar pb-2 snap-x snap-mandatory">
+      <ScrollableRow className="gap-4 md:gap-6 px-4 md:px-6 pb-2">
         {items.map((a) => (
-          <div key={a.slug} className="shrink-0 w-[78%] sm:w-[60%] md:w-[340px] lg:w-[360px] snap-start">
+          <div key={a.slug} className="shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start">
             <ArticleCard article={a} />
           </div>
         ))}
-      </div>
+      </ScrollableRow>
     </section>
   );
 }

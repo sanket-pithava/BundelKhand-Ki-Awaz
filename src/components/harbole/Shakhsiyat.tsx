@@ -1,5 +1,6 @@
 import { Quote } from "lucide-react";
 import type { DynamicShakhsiyat } from "@/hooks/useHomepageData";
+import { ScrollableRow } from "@/components/harbole/ScrollableRow";
 
 export function Shakhsiyat({ profiles }: { profiles: DynamicShakhsiyat[] }) {
   if (!profiles || profiles.length === 0) return null;
@@ -11,11 +12,11 @@ export function Shakhsiyat({ profiles }: { profiles: DynamicShakhsiyat[] }) {
         <h2 className="font-hindi text-2xl font-semibold text-navy leading-none">शख्सियत</h2>
         <p className="text-navy/50 text-xs font-body-hindi mt-2">वो चेहरे जिनकी कहानियाँ बुंदेलखंड को आकार दे रही हैं</p>
       </div>
-      <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 pb-2">
+      <ScrollableRow className="gap-4 px-4 pb-2">
         {profiles.map((p) => (
           <article
             key={p.id}
-            className="shrink-0 w-[270px] aspect-[3/4] relative rounded-2xl overflow-hidden ring-1 ring-navy/10 shadow-elevated group"
+            className="shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] aspect-[3/4] relative rounded-2xl overflow-hidden ring-1 ring-navy/10 shadow-elevated group snap-start"
           >
             <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
             <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/45 to-transparent" />
@@ -29,7 +30,7 @@ export function Shakhsiyat({ profiles }: { profiles: DynamicShakhsiyat[] }) {
             </div>
           </article>
         ))}
-      </div>
+      </ScrollableRow>
     </section>
   );
 }

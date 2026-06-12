@@ -8,7 +8,7 @@ import { useNavigationData } from "@/hooks/useNavigationData";
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate({ from: "/" });
-  
+
   // Try to read from root, but if we are not on root, these might be undefined
   // So we catch any error or just use an empty object fallback.
   let search: any = {};
@@ -17,7 +17,7 @@ export function Header() {
   } catch (e) {
     // Not on root page
   }
-  
+
   const selectedDistrictSlug = search.district;
   const selectedCategorySlug = search.category;
 
@@ -33,12 +33,12 @@ export function Header() {
   const displayCategories = useMemo(() => {
     if (!data?.categories) return [];
     if (!selectedDistrict) return data.categories; // Show all if no district selected
-    
+
     // Filter categories that are mapped to the selected district
     const mappedCategoryIds = data.district_categories
       .filter(dc => dc.district_id === selectedDistrict.id)
       .map(dc => dc.category_id);
-      
+
     // If a district has NO categories mapped, maybe we show nothing, or show all? 
     // Usually it should show only mapped ones.
     return data.categories.filter(c => mappedCategoryIds.includes(c.id));
@@ -78,7 +78,7 @@ export function Header() {
               <Logo className="h-14 sm:h-16 md:h-20 w-auto group-active:scale-95 transition-transform" />
               <div className="flex flex-col leading-none -ml-1">
                 <span className="font-hindi text-[20px] md:text-[26px] font-semibold tracking-tight text-navy">हरबोले</span>
-                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.22em] text-orange mt-0.5">Bundelkhand</span>
+                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.22em] text-orange mt-0.5">Voice Of Bundelkhand</span>
               </div>
             </Link>
           </div>
@@ -121,11 +121,10 @@ export function Header() {
                     <button
                       key={d.id}
                       onClick={() => handleDistrictClick(d.slug)}
-                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${
-                        active
-                          ? "bg-navy text-paper shadow-editorial"
-                          : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
-                      }`}
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${active
+                        ? "bg-navy text-paper shadow-editorial"
+                        : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
+                        }`}
                     >
                       {d.name}
                     </button>
@@ -155,11 +154,10 @@ export function Header() {
                     <button
                       key={c.id}
                       onClick={() => handleCategoryClick(c.slug)}
-                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${
-                        active
-                          ? "bg-orange text-paper shadow-editorial"
-                          : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
-                      }`}
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${active
+                        ? "bg-orange text-paper shadow-editorial"
+                        : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
+                        }`}
                     >
                       {c.name}
                     </button>

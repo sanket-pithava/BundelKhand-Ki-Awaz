@@ -51,7 +51,7 @@ export function DistrictGrid() {
             <button
               key={d.id}
               onClick={() => handleDistrictClick(d.slug)}
-              className={`relative aspect-square rounded-lg p-2 flex flex-col justify-between text-left transition-all overflow-hidden ${
+              className={`relative aspect-square rounded-lg p-2 flex flex-col items-center justify-center text-center transition-all overflow-hidden ${
                 active
                   ? "bg-navy text-paper shadow-elevated"
                   : "bg-white text-navy ring-1 ring-navy/10 hover:ring-navy/30"
@@ -62,9 +62,9 @@ export function DistrictGrid() {
                   <img src={d.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
               ) : null}
-              <MapPin className={`size-3 relative z-10 ${active ? "text-gold" : "text-orange"}`} />
-              <div className="relative z-10">
-                <div className={`font-hindi text-xs font-semibold leading-tight ${active ? "text-paper" : "text-navy"}`}>{d.name}</div>
+              <MapPin className={`absolute top-2 left-2 size-3 z-10 ${active ? "text-gold" : "text-orange"}`} />
+              <div className="relative z-10 w-full h-full flex items-center justify-center">
+                <div className={`font-hindi text-lg sm:text-xl font-semibold leading-tight ${active ? "text-paper" : "text-navy"}`}>{d.name}</div>
               </div>
               {active && <div className="absolute top-1.5 right-1.5 size-1 rounded-full bg-gold animate-pulse z-10" />}
             </button>
