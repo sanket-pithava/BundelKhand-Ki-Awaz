@@ -8,26 +8,33 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/article/$slug")({
   loader: async ({ params }) => {
-    let article = ALL_ARTICLES[params.slug];
-    if (!article) {
-      const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('slug', params.slug)
-        .single();
-      if (!error && data) {
-        article = {
-          title: data.title,
-          category: data.category_slug || 'news',
-          slug: data.slug,
-          time: data.time_label || 'Recently',
-          image: data.image_url || IMAGES.newsGeneric,
-          dek: data.excerpt || '',
-          content: data.content || '',
-          author: data.author_name || 'हरबोले डेस्क'
-        } as any;
-      }
+    let article = null;
+    
+    // Fetch from Supabase to ensure we get the latest dynamic content
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*, category:categories(name)')
+      .eq('slug', params.slug)
+      .maybeSingle();
+
+    if (!error && data) {
+      // @ts-ignore
+      const categoryName = data.category?.name || data.category_slug || 'news';
+      article = {
+        title: data.title,
+        category: categoryName,
+        slug: data.slug,
+        time: data.time_label || 'Recently',
+        image: data.image_url || '',
+        dek: data.dek || data.excerpt || '',
+        content: data.body || data.content || '',
+        author: data.author_name || 'हरबोले डेस्क'
+      } as any;
+    } else {
+      // Fallback to static mock data if not found in database
+      article = ALL_ARTICLES[params.slug];
     }
+    
     if (!article) throw notFound();
     return { article };
   },
@@ -117,20 +124,9 @@ function ArticlePage() {
               {article.content ? (
                 <div dangerouslySetInnerHTML={{ __html: article.content }} className="prose prose-lg prose-navy max-w-none prose-p:mb-6" />
               ) : (
-                <>
-                  <p className="first-letter:font-hindi first-letter:text-6xl first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:leading-none first-letter:text-orange">
-                    बुंदेलखंड की मिट्टी हमेशा से कहानियाँ बुनती आई है — कभी सूखे की, कभी संघर्ष की, और अब उम्मीद की भी। महोबा ज़िले के एक छोटे से गांव से उठी यह लहर अब पूरे क्षेत्र में एक नया संदेश दे रही है।
-                  </p>
-                  <p>
-                    जब बारिश का पानी पहाड़ों से उतरकर खेतों तक पहुँचने से पहले ही गायब हो जाता था, तब गांव की महिलाओं ने पुरानी पारंपरिक तकनीकों को फिर से ज़िंदा करने का बीड़ा उठाया। पत्थर के बांध, मिट्टी के तालाब और कुओं की मरम्मत — यह सब उन्हीं हाथों ने किया जिन्हें कभी असहाय माना जाता था।
-                  </p>
-                  <blockquote className="border-l-4 border-orange pl-5 py-2 font-hindi text-2xl text-navy leading-tight">
-                    "हमने पानी को रोका, और पानी ने हमें थाम लिया।"
-                  </blockquote>
-                  <p>
-                    आज इस गांव में सरसों लहलहा रही है, खेतों में चहल-पहल है, और सबसे ज़रूरी — पलायन रुका है। यह कहानी सिर्फ एक गांव की नहीं, बुंदेलखंड के भविष्य की है।
-                  </p>
-                </>
+                <p className="first-letter:font-hindi first-letter:text-6xl first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:leading-none first-letter:text-orange">
+                  {article.dek || "इस खबर का पूरा विवरण जल्द ही उपलब्ध होगा।"}
+                </p>
               )}
             </div>
           </article>
