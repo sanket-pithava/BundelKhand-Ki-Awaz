@@ -9,8 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/article/$slug")({
   loader: async ({ params }) => {
     let article = null;
+    let relatedArticles: any[] = [];
+    let prevArticle = null;
+    let nextArticle = null;
     
-    // Fetch from Supabase to ensure we get the latest dynamic content
     const { data, error } = await supabase
       .from('articles')
       .select('*, category:categories(name)')
@@ -30,19 +32,36 @@ export const Route = createFileRoute("/article/$slug")({
         content: data.body || data.content || '',
         author: data.author_name || 'हरबोले डेस्क'
       } as any;
+
+      if (data.category_id) {
+        const [relatedRes, prevRes, nextRes] = await Promise.all([
+          supabase.from('articles').select('title, slug, image_url, category:categories(name)').eq('category_id', data.category_id).neq('id', data.id).limit(3),
+          supabase.from('articles').select('title, slug').lt('created_at', data.created_at).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+          supabase.from('articles').select('title, slug').gt('created_at', data.created_at).order('created_at', { ascending: true }).limit(1).maybeSingle()
+        ]);
+        
+        relatedArticles = (relatedRes.data || []).map((a: any) => ({
+          title: a.title,
+          slug: a.slug,
+          image: a.image_url,
+          category: Array.isArray(a.category) ? a.category[0]?.name : (a.category?.name || 'News')
+        }));
+        prevArticle = prevRes.data;
+        nextArticle = nextRes.data;
+      }
+
     } else {
-      // Fallback to static mock data if not found in database
       article = ALL_ARTICLES[params.slug];
     }
     
     if (!article) throw notFound();
-    return { article };
+    return { article, relatedArticles, prevArticle, nextArticle };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
           { title: `${loaderData.article.title} | हरबोले` },
-          { name: "description", content: loaderData.article.dek ?? loaderData.article.title },
+          { name: "description", content: loaderData.article.dek || loaderData.article.title },
           { property: "og:title", content: loaderData.article.title },
           { property: "og:image", content: loaderData.article.image },
         ]
@@ -65,11 +84,11 @@ export const Route = createFileRoute("/article/$slug")({
 });
 
 function ArticlePage() {
-  const { article } = Route.useLoaderData();
+  const { article, relatedArticles, prevArticle, nextArticle } = Route.useLoaderData();
 
   return (
     <div className="min-h-screen bg-paper">
-      <div className="max-w-[480px] md:max-w-3xl lg:max-w-4xl mx-auto bg-paper relative">
+      <div className="max-w-[480px] md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto bg-paper relative">
         <Header />
         <main className="pb-32 md:pb-16">
           <div className="px-4 pt-3 flex items-center justify-between">
@@ -109,7 +128,7 @@ function ArticlePage() {
               </div>
             </div>
 
-            <div className="px-4 md:px-0">
+            <div className="px-4 md:px-6 lg:px-8">
               <img
                 src={article.image}
                 alt={article.title}
@@ -120,7 +139,7 @@ function ArticlePage() {
               <p className="text-[10px] uppercase tracking-widest text-navy/40 mt-2 px-1">— हरबोले फोटो</p>
             </div>
 
-            <div className="px-6 md:px-0 mt-8 space-y-6 font-body-hindi text-[17px] md:text-lg leading-[1.8] text-navy/85">
+            <div className="px-6 md:px-8 lg:px-10 mt-8 space-y-6 font-body-hindi text-[17px] md:text-lg leading-[1.8] text-navy/85">
               {article.content ? (
                 <div dangerouslySetInnerHTML={{ __html: article.content }} className="prose prose-lg prose-navy max-w-none prose-p:mb-6" />
               ) : (
@@ -142,24 +161,43 @@ function ArticlePage() {
             image={IMAGES.cultureTemple}
           />
 
-          <section className="mt-6 px-4 md:px-0">
-            <div className="text-orange text-[10px] font-bold uppercase tracking-[0.3em] mb-4">Continue Reading</div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
-              {TOP10.slice(0, 3).map((a) => (
-                <Link
-                  key={a.slug}
-                  to="/article/$slug"
-                  params={{ slug: a.slug }}
-                  className="flex md:flex-col gap-3 bg-white rounded-xl p-3 ring-1 ring-navy/5 shadow-editorial"
-                >
-                  <img src={a.image} alt="" loading="lazy" className="size-20 md:size-auto md:w-full md:aspect-video object-cover rounded-lg shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-orange mb-1">{a.category}</div>
-                    <h4 className="font-hindi text-sm md:text-base text-navy leading-snug line-clamp-3">{a.title}</h4>
-                  </div>
+          <section className="mt-8 px-4 md:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row gap-4 border-y border-navy/10 py-6 mb-8 justify-between">
+              {prevArticle ? (
+                <Link to="/article/$slug" params={{ slug: prevArticle.slug }} className="flex-1 group">
+                  <div className="text-[10px] text-navy/50 font-bold uppercase tracking-widest mb-1 group-hover:text-orange transition-colors">← Previous Article</div>
+                  <div className="font-hindi text-sm text-navy leading-snug line-clamp-2">{prevArticle.title}</div>
                 </Link>
-              ))}
+              ) : <div className="flex-1" />}
+              {nextArticle ? (
+                <Link to="/article/$slug" params={{ slug: nextArticle.slug }} className="flex-1 text-right group">
+                  <div className="text-[10px] text-navy/50 font-bold uppercase tracking-widest mb-1 group-hover:text-orange transition-colors">Next Article →</div>
+                  <div className="font-hindi text-sm text-navy leading-snug line-clamp-2">{nextArticle.title}</div>
+                </Link>
+              ) : <div className="flex-1" />}
             </div>
+
+            {relatedArticles && relatedArticles.length > 0 && (
+              <>
+                <div className="text-orange text-[10px] font-bold uppercase tracking-[0.3em] mb-4">Related News</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                  {relatedArticles.map((a: any) => (
+                    <Link
+                      key={a.slug}
+                      to="/article/$slug"
+                      params={{ slug: a.slug }}
+                      className="flex md:flex-col gap-3 bg-white rounded-xl p-3 ring-1 ring-navy/5 shadow-editorial group hover:shadow-elevated transition-shadow"
+                    >
+                      <img src={a.image} alt="" loading="lazy" className="size-20 md:size-auto md:w-full md:aspect-video object-cover rounded-lg shrink-0 group-hover:opacity-95" />
+                      <div className="min-w-0">
+                        <div className="text-[9px] font-bold uppercase tracking-widest text-orange mb-1">{a.category}</div>
+                        <h4 className="font-hindi text-sm md:text-base text-navy leading-snug line-clamp-3 group-hover:text-orange transition-colors">{a.title}</h4>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
 
           <AdBanner

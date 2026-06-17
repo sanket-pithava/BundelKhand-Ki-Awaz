@@ -120,7 +120,7 @@ export function useHomepageData() {
 
       // 2. Fetch Placements and Categories
       const articleSelectQuery = `
-        id, title, slug, image_url, publish_at, excerpt, category_id,
+        id, title, slug, image_url, publish_at, created_at, excerpt, category_id, sort_order,
         district:districts(name, slug),
         category:categories(name, slug)
       `;
@@ -180,7 +180,7 @@ export function useHomepageData() {
           slug: row.slug,
           district: Array.isArray(row.district) ? row.district[0] : row.district,
           category: Array.isArray(row.category) ? row.category[0] : row.category,
-          time: getRelativeTimeHindi(row.publish_at),
+          time: getRelativeTimeHindi(row.publish_at || row.created_at),
           image: row.image_url || "",
           authorName: "हरबोले डेस्क",
           excerpt: row.excerpt,
@@ -206,6 +206,18 @@ export function useHomepageData() {
 
       // 4. Bucket Category Sections
       const rawCat = catRes.data || [];
+      
+      // Sort rawCat to respect sort_order (1, 2, 3) over default 0
+      rawCat.sort((a: any, b: any) => {
+        const orderA = a.sort_order && a.sort_order > 0 ? a.sort_order : 999999;
+        const orderB = b.sort_order && b.sort_order > 0 ? b.sort_order : 999999;
+        if (orderA !== orderB) return orderA - orderB;
+        
+        const dateA = new Date(a.publish_at || a.created_at || 0).getTime();
+        const dateB = new Date(b.publish_at || b.created_at || 0).getTime();
+        return dateB - dateA;
+      });
+
       const mappedSections: HomepageSection[] = sections.map((sec) => {
         const catSlug = Array.isArray(sec.category) ? sec.category[0]?.slug : (sec.category as any)?.slug;
         const sectionArticles: DynamicArticle[] = [];

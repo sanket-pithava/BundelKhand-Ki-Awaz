@@ -5,60 +5,61 @@ import { FullscreenMenu } from "./FullscreenMenu";
 import { Logo } from "./Logo";
 import { useNavigationData } from "@/hooks/useNavigationData";
 
-export function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate({ from: "/" });
+interface HeaderProps {
+  activeJilaSlug?: string;
+  activeSubDistrictSlug?: string;
+  activeCategorySlug?: string;
+}
 
-  // Try to read from root, but if we are not on root, these might be undefined
-  // So we catch any error or just use an empty object fallback.
+export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySlug }: HeaderProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
   let search: any = {};
   try {
     search = useSearch({ from: "/" });
-  } catch (e) {
-    // Not on root page
-  }
+  } catch (e) {}
 
-  const selectedDistrictSlug = search.district;
-  const selectedCategorySlug = search.category;
+  const selectedDistrictSlug = activeJilaSlug || search.district;
+  const selectedCategorySlug = activeCategorySlug || search.category;
 
   const { data, isLoading } = useNavigationData();
 
-  // Active district
   const selectedDistrict = useMemo(() => {
     if (!data?.districts) return null;
     return data.districts.find(d => d.slug === selectedDistrictSlug) || null;
   }, [data, selectedDistrictSlug]);
 
-  // Derived categories
   const displayCategories = useMemo(() => {
     if (!data?.categories) return [];
-    if (!selectedDistrict) return data.categories; // Show all if no district selected
+    if (!selectedDistrict) return data.categories;
 
-    // Filter categories that are mapped to the selected district
     const mappedCategoryIds = data.district_categories
       .filter(dc => dc.district_id === selectedDistrict.id)
       .map(dc => dc.category_id);
 
-    // If a district has NO categories mapped, maybe we show nothing, or show all? 
-    // Usually it should show only mapped ones.
     return data.categories.filter(c => mappedCategoryIds.includes(c.id));
   }, [data, selectedDistrict]);
 
   function handleDistrictClick(slug: string) {
     if (selectedDistrictSlug === slug) {
-      // Toggle off
-      navigate({ search: (prev: any) => ({ ...prev, district: undefined, category: undefined }) });
+      navigate({ to: selectedCategorySlug ? `/category/${encodeURIComponent(selectedCategorySlug)}` : '/' });
     } else {
-      // Toggle on and clear category since it might not belong to this new district
-      navigate({ search: (prev: any) => ({ ...prev, district: slug, category: undefined }) });
+      navigate({ to: selectedCategorySlug ? `/news/${encodeURIComponent(slug)}/category/${encodeURIComponent(selectedCategorySlug)}` : `/news/${encodeURIComponent(slug)}` });
     }
   }
 
   function handleCategoryClick(slug: string) {
     if (selectedCategorySlug === slug) {
-      navigate({ search: (prev: any) => ({ ...prev, category: undefined }) });
+      let url = '/';
+      if (selectedDistrictSlug && activeSubDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}`;
+      else if (selectedDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}`;
+      navigate({ to: url });
     } else {
-      navigate({ search: (prev: any) => ({ ...prev, category: slug }) });
+      let url = `/category/${encodeURIComponent(slug)}`;
+      if (selectedDistrictSlug && activeSubDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}/category/${encodeURIComponent(slug)}`;
+      else if (selectedDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}/category/${encodeURIComponent(slug)}`;
+      navigate({ to: url });
     }
   }
 
@@ -78,7 +79,7 @@ export function Header() {
               <Logo className="h-14 sm:h-16 md:h-20 w-auto group-active:scale-95 transition-transform" />
               <div className="flex flex-col leading-none -ml-1">
                 <span className="font-hindi text-[20px] md:text-[26px] font-semibold tracking-tight text-navy">हरबोले</span>
-                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.22em] text-orange mt-0.5">Voice Of Bundelkhand</span>
+                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.22em] text-orange mt-0.5">Bundelkhand Ki Awaaz</span>
               </div>
             </Link>
           </div>

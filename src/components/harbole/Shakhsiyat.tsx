@@ -12,7 +12,7 @@ export function Shakhsiyat({ profiles }: { profiles: DynamicShakhsiyat[] }) {
         <h2 className="font-hindi text-2xl font-semibold text-navy leading-none">शख्सियत</h2>
         <p className="text-navy/50 text-xs font-body-hindi mt-2">वो चेहरे जिनकी कहानियाँ बुंदेलखंड को आकार दे रही हैं</p>
       </div>
-      <ScrollableRow className="gap-4 px-4 pb-2">
+      <ScrollableRow autoScroll className="gap-4 px-4 pb-2">
         {profiles.map((p) => (
           <article
             key={p.id}

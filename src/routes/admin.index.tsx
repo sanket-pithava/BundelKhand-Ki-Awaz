@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import { Plus, Edit2, Trash2, Save, X, Upload } from "lucide-react";
 import { PlacementManager } from "@/components/admin/PlacementManager";
 import { ArticleManager } from "@/components/admin/ArticleManager";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminHome,
 });
 
-type FieldType = "text" | "textarea" | "image" | "bool" | "number" | "select" | "multiselect" | "select_district" | "select_category" | "select_article" | "datetime";
+type FieldType = "text" | "textarea" | "richtext" | "image" | "bool" | "number" | "select" | "multiselect" | "select_district" | "select_sub_district" | "select_category" | "select_article" | "datetime";
 type Field = { key: string; label: string; type: FieldType; options?: any[]; placeholder?: string };
 
 type Resource = {
@@ -38,8 +39,9 @@ const RESOURCES: Resource[] = [
       { key: "slug", label: "Slug (unique, english)", type: "text", placeholder: "ken-betwa-2026" },
       { key: "dek", label: "Subheadline / Dek", type: "textarea" },
       { key: "excerpt", label: "Excerpt (short text for lists)", type: "textarea" },
-      { key: "body", label: "Body (full article)", type: "textarea" },
-      { key: "district_id", label: "District", type: "select_district" },
+      { key: "body", label: "Body (full article)", type: "richtext" },
+      { key: "district_id", label: "District (Jila)", type: "select_district" },
+      { key: "sub_district_id", label: "Sub-District (Tehsil/Area)", type: "select_sub_district" },
       { key: "category_id", label: "Category", type: "select_category" },
       { key: "tags", label: "Tags (comma separated)", type: "text" },
       { key: "image_url", label: "Cover Image", type: "image" },
@@ -252,6 +254,20 @@ const RESOURCES: Resource[] = [
       { key: "_categories", label: "Assigned Categories", type: "multiselect" },
     ],
   },
+  {
+    key: "sub_districts",
+    label: "Sub-Districts",
+    table: "sub_districts",
+    orderBy: "created_at",
+    ascending: false,
+    defaults: { status: true },
+    fields: [
+      { key: "name", label: "Sub-District Name", type: "text" },
+      { key: "slug", label: "Slug", type: "text" },
+      { key: "jila_id", label: "Parent District (Jila)", type: "select_district" },
+      { key: "status", label: "Active", type: "bool" },
+    ],
+  },
 ];
 
 function AdminHome() {
@@ -404,6 +420,7 @@ export function EditDrawer({ resource, row, onClose, onSaved }: { resource: Reso
   const isNew = !form.id;
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [districts, setDistricts] = useState<{id: string, name: string}[]>([]);
+  const [subDistricts, setSubDistricts] = useState<{id: string, name: string}[]>([]);
   const [articles, setArticles] = useState<{id: string, title: string}[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
@@ -432,6 +449,18 @@ export function EditDrawer({ resource, row, onClose, onSaved }: { resource: Reso
       }
     }
   }, [resource, form.id, isNew]);
+
+  useEffect(() => {
+    const jilaId = form.district_id || form.jila_id;
+    if (jilaId) {
+      (supabase as any).from("sub_districts").select("id, name").eq("jila_id", jilaId).eq("status", true).then(({data}: any) => {
+         if(data) setSubDistricts(data);
+      });
+    } else {
+      setSubDistricts([]);
+      if (form.sub_district_id) setForm((f) => ({ ...f, sub_district_id: null }));
+    }
+  }, [form.district_id, form.jila_id]);
 
   function set<K extends string>(k: K, v: unknown) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -512,6 +541,14 @@ export function EditDrawer({ resource, row, onClose, onSaved }: { resource: Reso
                 </div>
               );
             }
+            if (f.type === "richtext") {
+              return (
+                <div key={f.key} className="col-span-full">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60 mb-1">{f.label}</label>
+                  <RichTextEditor value={(v as string) ?? ""} onChange={(val) => set(f.key, val)} />
+                </div>
+              );
+            }
             if (f.type === "bool") {
               return (
                 <label key={f.key} className="flex items-center gap-2 text-sm">
@@ -571,6 +608,19 @@ export function EditDrawer({ resource, row, onClose, onSaved }: { resource: Reso
                     <option value="">-- Select District --</option>
                     {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
+                </div>
+              );
+            }
+            if (f.type === "select_sub_district") {
+              const hasJila = !!form.district_id;
+              return (
+                <div key={f.key}>
+                  <label htmlFor={id} className={`block text-xs font-semibold uppercase tracking-wider ${hasJila ? 'text-navy/60' : 'text-navy/30'}`}>{f.label}</label>
+                  <select id={id} value={(v as string) ?? ""} onChange={(e) => set(f.key, e.target.value || null)} disabled={!hasJila} className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm disabled:bg-navy/5 disabled:text-navy/40">
+                    <option value="">-- Select Sub-District (Optional) --</option>
+                    {subDistricts.map((sd) => <option key={sd.id} value={sd.id}>{sd.name}</option>)}
+                  </select>
+                  {!hasJila && <p className="text-[10px] text-navy/40 mt-1">Please select a District (Jila) first.</p>}
                 </div>
               );
             }

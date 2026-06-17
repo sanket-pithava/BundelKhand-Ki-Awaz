@@ -80,6 +80,7 @@ export type Database = {
           title: string
           updated_at: string
           video_url: string | null
+          sub_district_id: string | null
         }
         Insert: {
           author_id?: string | null
@@ -97,6 +98,7 @@ export type Database = {
           title: string
           updated_at?: string
           video_url?: string | null
+          sub_district_id?: string | null
         }
         Update: {
           author_id?: string | null
@@ -114,6 +116,7 @@ export type Database = {
           title?: string
           updated_at?: string
           video_url?: string | null
+          sub_district_id?: string | null
         }
         Relationships: [
           {
@@ -128,6 +131,13 @@ export type Database = {
             columns: ["district_id"]
             isOneToOne: false
             referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_sub_district_id_fkey"
+            columns: ["sub_district_id"]
+            isOneToOne: false
+            referencedRelation: "sub_districts"
             referencedColumns: ["id"]
           },
           {
@@ -318,6 +328,41 @@ export type Database = {
           status?: boolean
         }
         Relationships: []
+      }
+      sub_districts: {
+        Row: {
+          created_at: string
+          id: string
+          jila_id: string
+          name: string
+          slug: string
+          status: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jila_id: string
+          name: string
+          slug: string
+          status?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jila_id?: string
+          name?: string
+          slug?: string
+          status?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_districts_jila_id_fkey"
+            columns: ["jila_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       homepage_sections: {
         Row: {

@@ -82,144 +82,144 @@ function HomePage() {
               {/* Live ticker */}
               {homeData?.breakingNews?.length ? <NewsTicker items={homeData.breakingNews} /> : null}
 
-          {/* Hero auto-rotating slider */}
-          {homeLoading ? (
-             <div className="p-4 md:px-6 md:py-6"><div className="aspect-[16/10] md:aspect-[21/9] bg-navy/5 rounded-2xl animate-pulse" /></div>
-          ) : (
-            <HeroSlider slides={homeData?.heroArticles || []} />
-          )}
+              {/* Hero auto-rotating slider */}
+              {homeLoading ? (
+                <div className="p-4 md:px-6 md:py-6"><div className="aspect-[16/10] md:aspect-[21/9] bg-navy/5 rounded-2xl animate-pulse" /></div>
+              ) : (
+                <HeroSlider slides={homeData?.heroArticles || []} />
+              )}
 
-          {/* Impact Timeline */}
-          {homeData?.impactArticles?.length ? (
-            <ImpactTimeline items={homeData.impactArticles} />
-          ) : null}
+              {/* Impact Timeline */}
+              {homeData?.impactArticles?.length ? (
+                <ImpactTimeline items={homeData.impactArticles} />
+              ) : null}
 
-          {/* Top 10 */}
-          {homeData?.top10Articles?.length ? (
-            <section className="py-6">
-              <SectionHeader hindi="बुंदेलखंड Top 10" english="Most Read Today" href="/category/top10" />
-              <ScrollableRow className="gap-5 px-4 pb-2">
-                {homeData.top10Articles.map((a, i) => (
-                  <div key={a.slug} className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3">
-                    <span className="absolute -top-1 -left-1 text-[80px] leading-none font-bold text-gold/25 italic select-none font-sans">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="relative z-10 pl-7">
-                      <ArticleCard article={a as any} />
-                    </div>
-                  </div>
-                ))}
-              </ScrollableRow>
-            </section>
-          ) : null}
-
-          {/* Ticker 2 */}
-          {homeData?.breakingNews?.length ? <NewsTicker items={homeData.breakingNews} invert /> : null}
-
-          {/* Ads Carousel */}
-          {homeData?.ads && homeData.ads.length > 0 && (
-            <AutoScrollingAds ads={homeData.ads} />
-          )}
-
-
-          {/* DYNAMIC CATEGORY SECTIONS AND STATIC WIDGETS */}
-          {/* We will render static components at specific positions relative to dynamic sections, but guarantee they render even if sections are missing */}
-          
-          <div className="flex flex-col">
-            {/* Slot 0: Dynamic Section 0 or Shakhsiyat */}
-            {homeData?.categorySections?.[0] && (
-              <CategoryBand
-                hindi={homeData.categorySections[0].title_hindi}
-                english={homeData.categorySections[0].title_english}
-                href={`/category/${homeData.categorySections[0].category_slug}`}
-                items={homeData.categorySections[0].articles as any}
-              />
-            )}
-            <Shakhsiyat profiles={homeData?.shakhsiyat || []} />
-
-            {/* Slot 1: Dynamic Section 1 or Reels */}
-            {homeData?.categorySections?.[1] && (
-              <CategoryBand
-                hindi={homeData.categorySections[1].title_hindi}
-                english={homeData.categorySections[1].title_english}
-                href={`/category/${homeData.categorySections[1].category_slug}`}
-                items={homeData.categorySections[1].articles as any}
-              />
-            )}
-            {homeData?.reels && homeData.reels.length > 0 && (
-              <section className="bg-navy py-10 grain">
-                <SectionHeader hindi="लोक रंग" english="Bundeli Reels" invert />
-                <ScrollableRow className="gap-3 px-4 pb-2">
-                  {homeData.reels.map((r) => (
-                    <a
-                      key={r.id}
-                      href={r.video_url || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0 w-[calc(50%-6px)] md:w-[calc(25%-9px)] aspect-[9/16] rounded-xl overflow-hidden relative ring-1 ring-white/10 group block snap-start"
-                    >
-                      <img src={r.thumbnail} alt={r.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-                      <div className="absolute top-2.5 right-2.5 size-7 rounded-full bg-paper/15 backdrop-blur grid place-items-center ring-1 ring-paper/20">
-                        <Play className="size-3 text-paper fill-paper" />
-                      </div>
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <p className="text-paper text-xs font-body-hindi leading-snug mb-1">{r.title}</p>
-                        <div className="flex justify-between items-center text-paper/50 text-[10px] font-semibold">
-                          <span>{r.views}</span>
-                          <span>{r.duration}</span>
+              {/* Top 10 */}
+              {homeData?.top10Articles?.length ? (
+                <section className="py-6">
+                  <SectionHeader hindi="बुंदेलखंड Top 10" english="Most Read Today" href="/category/top10" />
+                  <ScrollableRow className="gap-5 px-4 pb-2">
+                    {homeData.top10Articles.map((a, i) => (
+                      <div key={a.slug} className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3">
+                        <span className="absolute -top-1 -left-1 text-[80px] leading-none font-bold text-gold/25 italic select-none font-sans">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <div className="relative z-10 pl-7">
+                          <ArticleCard article={a as any} />
                         </div>
                       </div>
-                    </a>
-                  ))}
-                </ScrollableRow>
-              </section>
-            )}
+                    ))}
+                  </ScrollableRow>
+                </section>
+              ) : null}
 
-            {/* Slot 2: Dynamic Section 2 */}
-            {homeData?.categorySections?.[2] && (
-              <CategoryBand
-                hindi={homeData.categorySections[2].title_hindi}
-                english={homeData.categorySections[2].title_english}
-                href={`/category/${homeData.categorySections[2].category_slug}`}
-                items={homeData.categorySections[2].articles as any}
-              />
-            )}
+              {/* Ticker 2 */}
+              {homeData?.breakingNews?.length ? <NewsTicker items={homeData.breakingNews} invert /> : null}
 
-            {/* Slot 3: Dynamic Section 3 or Amit Tripathi Show */}
-            {homeData?.categorySections?.[3] && (
-              <CategoryBand
-                hindi={homeData.categorySections[3].title_hindi}
-                english={homeData.categorySections[3].title_english}
-                href={`/category/${homeData.categorySections[3].category_slug}`}
-                items={homeData.categorySections[3].articles as any}
-              />
-            )}
-            <AmitTripathiShow featuredEpisode={homeData?.featuredEpisode} pastEpisodes={homeData?.pastEpisodes || []} />
+              {/* Ads Carousel */}
+              {homeData?.ads && homeData.ads.length > 0 && (
+                <AutoScrollingAds ads={homeData.ads} />
+              )}
 
-            {/* Slot 4: Dynamic Section 4 */}
-            {homeData?.categorySections?.[4] && (
-              <CategoryBand
-                hindi={homeData.categorySections[4].title_hindi}
-                english={homeData.categorySections[4].title_english}
-                href={`/category/${homeData.categorySections[4].category_slug}`}
-                items={homeData.categorySections[4].articles as any}
-              />
-            )}
 
-            {/* Any remaining dynamic sections */}
-            {homeData?.categorySections?.slice(5).map((sec) => (
-              <CategoryBand
-                key={sec.id}
-                hindi={sec.title_hindi}
-                english={sec.title_english}
-                href={`/category/${sec.category_slug}`}
-                items={sec.articles as any}
-              />
-            ))}
-          </div>
+              {/* DYNAMIC CATEGORY SECTIONS AND STATIC WIDGETS */}
+              {/* We will render static components at specific positions relative to dynamic sections, but guarantee they render even if sections are missing */}
 
-          </>
+              <div className="flex flex-col">
+                {/* Slot 0: Dynamic Section 0 or Shakhsiyat */}
+                {homeData?.categorySections?.[0] && (
+                  <CategoryBand
+                    hindi={homeData.categorySections[0].title_hindi}
+                    english={homeData.categorySections[0].title_english}
+                    href={`/category/${homeData.categorySections[0].category_slug}`}
+                    items={homeData.categorySections[0].articles as any}
+                  />
+                )}
+                <Shakhsiyat profiles={homeData?.shakhsiyat || []} />
+
+                {/* Slot 1: Dynamic Section 1 or Reels */}
+                {homeData?.categorySections?.[1] && (
+                  <CategoryBand
+                    hindi={homeData.categorySections[1].title_hindi}
+                    english={homeData.categorySections[1].title_english}
+                    href={`/category/${homeData.categorySections[1].category_slug}`}
+                    items={homeData.categorySections[1].articles as any}
+                  />
+                )}
+                {homeData?.reels && homeData.reels.length > 0 && (
+                  <section className="bg-navy py-10 grain">
+                    <SectionHeader hindi="लोक रंग" english="Bundeli Reels" invert />
+                    <ScrollableRow className="gap-3 px-4 pb-2">
+                      {homeData.reels.map((r) => (
+                        <a
+                          key={r.id}
+                          href={r.video_url || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="shrink-0 w-[calc(50%-6px)] md:w-[calc(25%-9px)] aspect-[9/16] rounded-xl overflow-hidden relative ring-1 ring-white/10 group block snap-start"
+                        >
+                          <img src={r.thumbnail} alt={r.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                          <div className="absolute top-2.5 right-2.5 size-7 rounded-full bg-paper/15 backdrop-blur grid place-items-center ring-1 ring-paper/20">
+                            <Play className="size-3 text-paper fill-paper" />
+                          </div>
+                          <div className="absolute bottom-3 left-3 right-3">
+                            <p className="text-paper text-xs font-body-hindi leading-snug mb-1">{r.title}</p>
+                            <div className="flex justify-between items-center text-paper/50 text-[10px] font-semibold">
+                              <span>{r.views}</span>
+                              <span>{r.duration}</span>
+                            </div>
+                          </div>
+                        </a>
+                      ))}
+                    </ScrollableRow>
+                  </section>
+                )}
+
+                {/* Slot 2: Dynamic Section 2 */}
+                {homeData?.categorySections?.[2] && (
+                  <CategoryBand
+                    hindi={homeData.categorySections[2].title_hindi}
+                    english={homeData.categorySections[2].title_english}
+                    href={`/category/${homeData.categorySections[2].category_slug}`}
+                    items={homeData.categorySections[2].articles as any}
+                  />
+                )}
+
+                {/* Slot 3: Dynamic Section 3 or Amit Tripathi Show */}
+                {homeData?.categorySections?.[3] && (
+                  <CategoryBand
+                    hindi={homeData.categorySections[3].title_hindi}
+                    english={homeData.categorySections[3].title_english}
+                    href={`/category/${homeData.categorySections[3].category_slug}`}
+                    items={homeData.categorySections[3].articles as any}
+                  />
+                )}
+                <AmitTripathiShow featuredEpisode={homeData?.featuredEpisode} pastEpisodes={homeData?.pastEpisodes || []} />
+
+                {/* Slot 4: Dynamic Section 4 */}
+                {homeData?.categorySections?.[4] && (
+                  <CategoryBand
+                    hindi={homeData.categorySections[4].title_hindi}
+                    english={homeData.categorySections[4].title_english}
+                    href={`/category/${homeData.categorySections[4].category_slug}`}
+                    items={homeData.categorySections[4].articles as any}
+                  />
+                )}
+
+                {/* Any remaining dynamic sections */}
+                {homeData?.categorySections?.slice(5).map((sec) => (
+                  <CategoryBand
+                    key={sec.id}
+                    hindi={sec.title_hindi}
+                    english={sec.title_english}
+                    href={`/category/${sec.category_slug}`}
+                    items={sec.articles as any}
+                  />
+                ))}
+              </div>
+
+            </>
           )}
 
           {/* District Selector always visible at bottom */}
@@ -231,7 +231,7 @@ function HomePage() {
               <Logo className="h-16 w-auto" />
               <div>
                 <div className="font-hindi text-2xl">हरबोले</div>
-                <div className="text-[9px] uppercase tracking-[0.3em] text-gold/80">Voice of Bundelkhand</div>
+                <div className="text-[9px] uppercase tracking-[0.3em] text-gold/80">Bundelkhand Ki Awaaz</div>
               </div>
             </div>
             <p className="text-paper/55 text-sm font-body-hindi leading-relaxed mb-8 max-w-prose">

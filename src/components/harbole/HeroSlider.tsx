@@ -77,8 +77,8 @@ export function HeroSlider({ slides }: { slides: DynamicArticle[] }) {
                 key={idx}
                 aria-label={`Slide ${idx + 1}`}
                 onClick={(e) => {
-                   e.preventDefault(); // Prevent triggering link
-                   setI(idx);
+                  e.preventDefault(); // Prevent triggering link
+                  setI(idx);
                 }}
                 className={`h-1 rounded-full transition-all ${idx === i ? "w-6 bg-gold" : "w-1.5 bg-paper/40"}`}
               />

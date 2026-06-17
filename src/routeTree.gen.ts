@@ -16,6 +16,10 @@ import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as NewsJilaSlugIndexRouteImport } from './routes/news.$jilaSlug.index'
+import { Route as NewsJilaSlugCategoryCategorySlugRouteImport } from './routes/news.$jilaSlug.category.$categorySlug'
+import { Route as NewsJilaSlugDistrictSubDistrictSlugIndexRouteImport } from './routes/news.$jilaSlug.district.$subDistrictSlug.index'
+import { Route as NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRouteImport } from './routes/news.$jilaSlug.district.$subDistrictSlug.category.$categorySlug'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -52,6 +56,29 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const NewsJilaSlugIndexRoute = NewsJilaSlugIndexRouteImport.update({
+  id: '/news/$jilaSlug/',
+  path: '/news/$jilaSlug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsJilaSlugCategoryCategorySlugRoute =
+  NewsJilaSlugCategoryCategorySlugRouteImport.update({
+    id: '/category/$categorySlug',
+    path: '/category/$categorySlug',
+    getParentRoute: () => NewsJilaSlugRoute,
+  } as any)
+const NewsJilaSlugDistrictSubDistrictSlugIndexRoute =
+  NewsJilaSlugDistrictSubDistrictSlugIndexRouteImport.update({
+    id: '/news/$jilaSlug/district/$subDistrictSlug/',
+    path: '/news/$jilaSlug/district/$subDistrictSlug/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute =
+  NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRouteImport.update({
+    id: '/category/$categorySlug',
+    path: '/category/$categorySlug',
+    getParentRoute: () => NewsJilaSlugDistrictSubDistrictSlugRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +88,10 @@ export interface FileRoutesByFullPath {
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/news/$jilaSlug/': typeof NewsJilaSlugIndexRoute
+  '/news/$jilaSlug/category/$categorySlug': typeof NewsJilaSlugCategoryCategorySlugRoute
+  '/news/$jilaSlug/district/$subDistrictSlug/': typeof NewsJilaSlugDistrictSubDistrictSlugIndexRoute
+  '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug': typeof NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,6 +100,10 @@ export interface FileRoutesByTo {
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/admin': typeof AdminIndexRoute
+  '/news/$jilaSlug': typeof NewsJilaSlugIndexRoute
+  '/news/$jilaSlug/category/$categorySlug': typeof NewsJilaSlugCategoryCategorySlugRoute
+  '/news/$jilaSlug/district/$subDistrictSlug': typeof NewsJilaSlugDistrictSubDistrictSlugIndexRoute
+  '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug': typeof NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,6 +114,10 @@ export interface FileRoutesById {
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/news/$jilaSlug/': typeof NewsJilaSlugIndexRoute
+  '/news/$jilaSlug/category/$categorySlug': typeof NewsJilaSlugCategoryCategorySlugRoute
+  '/news/$jilaSlug/district/$subDistrictSlug/': typeof NewsJilaSlugDistrictSubDistrictSlugIndexRoute
+  '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug': typeof NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,6 +129,10 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/category/$slug'
     | '/admin/'
+    | '/news/$jilaSlug/'
+    | '/news/$jilaSlug/category/$categorySlug'
+    | '/news/$jilaSlug/district/$subDistrictSlug/'
+    | '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,6 +141,10 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/category/$slug'
     | '/admin'
+    | '/news/$jilaSlug'
+    | '/news/$jilaSlug/category/$categorySlug'
+    | '/news/$jilaSlug/district/$subDistrictSlug'
+    | '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
   id:
     | '__root__'
     | '/'
@@ -107,6 +154,10 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/category/$slug'
     | '/admin/'
+    | '/news/$jilaSlug/'
+    | '/news/$jilaSlug/category/$categorySlug'
+    | '/news/$jilaSlug/district/$subDistrictSlug/'
+    | '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -114,6 +165,8 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ArticleSlugRoute: typeof ArticleSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  NewsJilaSlugIndexRoute: typeof NewsJilaSlugIndexRoute
+  NewsJilaSlugDistrictSubDistrictSlugIndexRoute: typeof NewsJilaSlugDistrictSubDistrictSlugIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -167,6 +220,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/news/$jilaSlug/': {
+      id: '/news/$jilaSlug/'
+      path: '/news/$jilaSlug'
+      fullPath: '/news/$jilaSlug/'
+      preLoaderRoute: typeof NewsJilaSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/$jilaSlug/category/$categorySlug': {
+      id: '/news/$jilaSlug/category/$categorySlug'
+      path: '/category/$categorySlug'
+      fullPath: '/news/$jilaSlug/category/$categorySlug'
+      preLoaderRoute: typeof NewsJilaSlugCategoryCategorySlugRouteImport
+      parentRoute: typeof NewsJilaSlugRoute
+    }
+    '/news/$jilaSlug/district/$subDistrictSlug/': {
+      id: '/news/$jilaSlug/district/$subDistrictSlug/'
+      path: '/news/$jilaSlug/district/$subDistrictSlug'
+      fullPath: '/news/$jilaSlug/district/$subDistrictSlug/'
+      preLoaderRoute: typeof NewsJilaSlugDistrictSubDistrictSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug': {
+      id: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
+      path: '/category/$categorySlug'
+      fullPath: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
+      preLoaderRoute: typeof NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRouteImport
+      parentRoute: typeof NewsJilaSlugDistrictSubDistrictSlugRoute
+    }
   }
 }
 
@@ -189,6 +270,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ArticleSlugRoute: ArticleSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
+  NewsJilaSlugIndexRoute: NewsJilaSlugIndexRoute,
+  NewsJilaSlugDistrictSubDistrictSlugIndexRoute:
+    NewsJilaSlugDistrictSubDistrictSlugIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

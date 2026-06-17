@@ -46,9 +46,9 @@ export function ArticleManager({ resource }: { resource: any }) {
       else toast.success("Removed from placement");
     } else {
       // Add
-      const { data: maxData } = await (supabase as any).from(table).select("sort_order").order("sort_order", { ascending: false }).limit(1);
-      const maxSort = maxData?.[0]?.sort_order ?? 0;
-      const { error } = await (supabase as any).from(table).insert({ article_id: articleId, sort_order: maxSort + 1 });
+      const { data: minData } = await (supabase as any).from(table).select("sort_order").order("sort_order", { ascending: true }).limit(1);
+      const minSort = minData?.[0]?.sort_order ?? 0;
+      const { error } = await (supabase as any).from(table).insert({ article_id: articleId, sort_order: minSort - 1 });
       if (error) toast.error(error.message);
       else toast.success("Added to placement");
     }
