@@ -59,7 +59,7 @@ export function DistrictGrid() {
             >
               {d.image_url ? (
                 <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition">
-                  <img src={d.image_url} alt="" className="w-full h-full object-cover" />
+                  <img src={d.image_url} alt="" className="w-full h-full object-contain" />
                 </div>
               ) : null}
               <MapPin className={`absolute top-2 left-2 size-3 z-10 ${active ? "text-gold" : "text-orange"}`} />

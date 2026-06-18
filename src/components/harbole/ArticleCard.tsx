@@ -37,7 +37,7 @@ export function ArticleCard({ article, size = "md" }: { article: any; size?: "sm
             src={imageUrl}
             alt={article.title}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+            className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-700"
           />
         ) : (
           <div className="w-full h-full bg-navy/5 flex items-center justify-center">

@@ -91,7 +91,7 @@ export function ArticleManager({ resource }: { resource: any }) {
                 <tr key={r.id} className="border-t border-navy/5 hover:bg-navy/[0.02]">
                   <td className="px-3 py-3 align-top">
                     <div className="size-12 rounded bg-navy/5 overflow-hidden">
-                      {r.image_url && <img src={r.image_url} className="w-full h-full object-cover" alt="" />}
+                      {r.image_url && <img src={r.image_url} className="w-full h-full object-contain" alt="" />}
                     </div>
                   </td>
                   <td className="px-3 py-3 align-top">

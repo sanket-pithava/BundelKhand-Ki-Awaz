@@ -15,7 +15,7 @@ function Card({ s, idx, total }: { s: DynamicArticle; idx: number; total: number
   
   return (
     <Link to="/article/$slug" params={{ slug: s.slug }} className="bg-white rounded-xl ring-1 ring-navy/5 shadow-editorial overflow-hidden flex hover:bg-navy/5 transition group">
-      <img src={s.image} alt="" loading="lazy" className="w-24 h-24 object-cover shrink-0" />
+      <img src={s.image} alt="" loading="lazy" className="w-24 h-24 object-contain shrink-0" />
       <div className="p-3 flex-1 min-w-0 relative">
         <span className={`absolute top-3 right-3 size-6 rounded-full grid place-items-center ring-2 bg-paper ${color}`}>
           {isDone ? <CheckCircle2 className="size-4" /> : <span className="text-[10px] font-bold">{idx + 1}</span>}

@@ -152,7 +152,7 @@ export function ArticlePickerModal({ onSelect, onClose, alreadySelectedIds = [] 
                   >
                     <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-navy/5">
                       {article.image_url ? (
-                        <img src={article.image_url} alt="" className="h-full w-full object-cover" />
+                        <img src={article.image_url} alt="" className="h-full w-full object-contain" />
                       ) : null}
                       {isSelected && (
                         <div className="absolute inset-0 flex items-center justify-center bg-navy/50 text-white backdrop-blur-[2px]">

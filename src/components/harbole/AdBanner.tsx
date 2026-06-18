@@ -37,7 +37,7 @@ export function AdBanner({
       </div>
       <div className={`relative overflow-hidden rounded-2xl shadow-elevated ${VARIANTS[variant]}`}>
         {image && (
-          <img src={image} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+          <img src={image} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-contain" />
         )}
         <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
         <div className="absolute -left-6 -bottom-6 size-32 rounded-full bg-black/10 blur-2xl pointer-events-none" />

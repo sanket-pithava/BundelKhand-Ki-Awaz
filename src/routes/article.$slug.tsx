@@ -134,7 +134,7 @@ function ArticlePage() {
                 alt={article.title}
                 width={1024}
                 height={680}
-                className="w-full aspect-[4/3] md:aspect-[21/9] object-cover rounded-2xl shadow-editorial"
+                className="w-full aspect-[4/3] md:aspect-[21/9] object-contain rounded-2xl shadow-editorial"
               />
               <p className="text-[10px] uppercase tracking-widest text-navy/40 mt-2 px-1">— हरबोले फोटो</p>
             </div>
@@ -188,7 +188,7 @@ function ArticlePage() {
                       params={{ slug: a.slug }}
                       className="flex md:flex-col gap-3 bg-white rounded-xl p-3 ring-1 ring-navy/5 shadow-editorial group hover:shadow-elevated transition-shadow"
                     >
-                      <img src={a.image} alt="" loading="lazy" className="size-20 md:size-auto md:w-full md:aspect-video object-cover rounded-lg shrink-0 group-hover:opacity-95" />
+                      <img src={a.image} alt="" loading="lazy" className="size-20 md:size-auto md:w-full md:aspect-video object-contain rounded-lg shrink-0 group-hover:opacity-95" />
                       <div className="min-w-0">
                         <div className="text-[9px] font-bold uppercase tracking-widest text-orange mb-1">{a.category}</div>
                         <h4 className="font-hindi text-sm md:text-base text-navy leading-snug line-clamp-3 group-hover:text-orange transition-colors">{a.title}</h4>

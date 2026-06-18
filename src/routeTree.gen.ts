@@ -63,9 +63,9 @@ const NewsJilaSlugIndexRoute = NewsJilaSlugIndexRouteImport.update({
 } as any)
 const NewsJilaSlugCategoryCategorySlugRoute =
   NewsJilaSlugCategoryCategorySlugRouteImport.update({
-    id: '/category/$categorySlug',
-    path: '/category/$categorySlug',
-    getParentRoute: () => NewsJilaSlugRoute,
+    id: '/news/$jilaSlug/category/$categorySlug',
+    path: '/news/$jilaSlug/category/$categorySlug',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const NewsJilaSlugDistrictSubDistrictSlugIndexRoute =
   NewsJilaSlugDistrictSubDistrictSlugIndexRouteImport.update({
@@ -75,9 +75,9 @@ const NewsJilaSlugDistrictSubDistrictSlugIndexRoute =
   } as any)
 const NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute =
   NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRouteImport.update({
-    id: '/category/$categorySlug',
-    path: '/category/$categorySlug',
-    getParentRoute: () => NewsJilaSlugDistrictSubDistrictSlugRoute,
+    id: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug',
+    path: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -166,7 +166,9 @@ export interface RootRouteChildren {
   ArticleSlugRoute: typeof ArticleSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
   NewsJilaSlugIndexRoute: typeof NewsJilaSlugIndexRoute
+  NewsJilaSlugCategoryCategorySlugRoute: typeof NewsJilaSlugCategoryCategorySlugRoute
   NewsJilaSlugDistrictSubDistrictSlugIndexRoute: typeof NewsJilaSlugDistrictSubDistrictSlugIndexRoute
+  NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute: typeof NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -229,10 +231,10 @@ declare module '@tanstack/react-router' {
     }
     '/news/$jilaSlug/category/$categorySlug': {
       id: '/news/$jilaSlug/category/$categorySlug'
-      path: '/category/$categorySlug'
+      path: '/news/$jilaSlug/category/$categorySlug'
       fullPath: '/news/$jilaSlug/category/$categorySlug'
       preLoaderRoute: typeof NewsJilaSlugCategoryCategorySlugRouteImport
-      parentRoute: typeof NewsJilaSlugRoute
+      parentRoute: typeof rootRouteImport
     }
     '/news/$jilaSlug/district/$subDistrictSlug/': {
       id: '/news/$jilaSlug/district/$subDistrictSlug/'
@@ -243,10 +245,10 @@ declare module '@tanstack/react-router' {
     }
     '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug': {
       id: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
-      path: '/category/$categorySlug'
+      path: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
       fullPath: '/news/$jilaSlug/district/$subDistrictSlug/category/$categorySlug'
       preLoaderRoute: typeof NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRouteImport
-      parentRoute: typeof NewsJilaSlugDistrictSubDistrictSlugRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -271,8 +273,11 @@ const rootRouteChildren: RootRouteChildren = {
   ArticleSlugRoute: ArticleSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
   NewsJilaSlugIndexRoute: NewsJilaSlugIndexRoute,
+  NewsJilaSlugCategoryCategorySlugRoute: NewsJilaSlugCategoryCategorySlugRoute,
   NewsJilaSlugDistrictSubDistrictSlugIndexRoute:
     NewsJilaSlugDistrictSubDistrictSlugIndexRoute,
+  NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute:
+    NewsJilaSlugDistrictSubDistrictSlugCategoryCategorySlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

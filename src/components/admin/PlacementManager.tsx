@@ -83,7 +83,7 @@ export function PlacementManager({ resource }: { resource: any }) {
                   <td className="px-3 py-3 text-center text-navy/40 font-mono text-xs">{r.sort_order}</td>
                   <td className="px-3 py-3">
                     <div className="size-10 rounded bg-navy/5 overflow-hidden">
-                      {article?.image_url && <img src={article.image_url} className="w-full h-full object-cover" alt="" />}
+                      {article?.image_url && <img src={article.image_url} className="w-full h-full object-contain" alt="" />}
                     </div>
                   </td>
                   <td className="px-3 py-3">
