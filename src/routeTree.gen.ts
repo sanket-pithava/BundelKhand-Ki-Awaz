@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SakshiyatSlugRouteImport } from './routes/sakshiyat.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -35,6 +36,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const SakshiyatSlugRoute = SakshiyatSlugRouteImport.update({
+  id: '/sakshiyat/$slug',
+  path: '/sakshiyat/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
   id: '/category/$slug',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/sakshiyat/$slug': typeof SakshiyatSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/news/$jilaSlug/': typeof NewsJilaSlugIndexRoute
   '/news/$jilaSlug/category/$categorySlug': typeof NewsJilaSlugCategoryCategorySlugRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/sakshiyat/$slug': typeof SakshiyatSlugRoute
   '/admin': typeof AdminIndexRoute
   '/news/$jilaSlug': typeof NewsJilaSlugIndexRoute
   '/news/$jilaSlug/category/$categorySlug': typeof NewsJilaSlugCategoryCategorySlugRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/sakshiyat/$slug': typeof SakshiyatSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/news/$jilaSlug/': typeof NewsJilaSlugIndexRoute
   '/news/$jilaSlug/category/$categorySlug': typeof NewsJilaSlugCategoryCategorySlugRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/article/$slug'
     | '/category/$slug'
+    | '/sakshiyat/$slug'
     | '/admin/'
     | '/news/$jilaSlug/'
     | '/news/$jilaSlug/category/$categorySlug'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/article/$slug'
     | '/category/$slug'
+    | '/sakshiyat/$slug'
     | '/admin'
     | '/news/$jilaSlug'
     | '/news/$jilaSlug/category/$categorySlug'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/article/$slug'
     | '/category/$slug'
+    | '/sakshiyat/$slug'
     | '/admin/'
     | '/news/$jilaSlug/'
     | '/news/$jilaSlug/category/$categorySlug'
@@ -165,6 +177,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ArticleSlugRoute: typeof ArticleSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  SakshiyatSlugRoute: typeof SakshiyatSlugRoute
   NewsJilaSlugIndexRoute: typeof NewsJilaSlugIndexRoute
   NewsJilaSlugCategoryCategorySlugRoute: typeof NewsJilaSlugCategoryCategorySlugRoute
   NewsJilaSlugDistrictSubDistrictSlugIndexRoute: typeof NewsJilaSlugDistrictSubDistrictSlugIndexRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/sakshiyat/$slug': {
+      id: '/sakshiyat/$slug'
+      path: '/sakshiyat/$slug'
+      fullPath: '/sakshiyat/$slug'
+      preLoaderRoute: typeof SakshiyatSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/category/$slug': {
       id: '/category/$slug'
@@ -272,6 +292,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ArticleSlugRoute: ArticleSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
+  SakshiyatSlugRoute: SakshiyatSlugRoute,
   NewsJilaSlugIndexRoute: NewsJilaSlugIndexRoute,
   NewsJilaSlugCategoryCategorySlugRoute: NewsJilaSlugCategoryCategorySlugRoute,
   NewsJilaSlugDistrictSubDistrictSlugIndexRoute:

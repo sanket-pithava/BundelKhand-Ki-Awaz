@@ -10,6 +10,7 @@ type Props = {
   cta?: string;
   sponsor?: string;
   image?: string;
+  mobileImage?: string;
 };
 
 const VARIANTS: Record<Variant, string> = {
@@ -27,6 +28,7 @@ export function AdBanner({
   cta = "Learn More",
   sponsor,
   image,
+  mobileImage,
 }: Props) {
   const isDark = variant === "navy" || variant === "orange";
   return (
@@ -36,8 +38,12 @@ export function AdBanner({
         {sponsor && <span className="text-navy/30 normal-case tracking-normal font-medium ml-auto">by {sponsor}</span>}
       </div>
       <div className={`relative overflow-hidden rounded-2xl shadow-elevated ${VARIANTS[variant]}`}>
-        {image && (
-          <img src={image} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-contain" />
+        {(image || mobileImage) && (
+          <picture className="absolute inset-0 w-full h-full">
+            {mobileImage && <source media="(max-width: 767px)" srcSet={mobileImage} />}
+            {image && <img src={image} alt="" loading="lazy" className="w-full h-full object-contain" />}
+            {mobileImage && !image && <img src={mobileImage} alt="" loading="lazy" className="w-full h-full object-contain" />}
+          </picture>
         )}
         <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
         <div className="absolute -left-6 -bottom-6 size-32 rounded-full bg-black/10 blur-2xl pointer-events-none" />

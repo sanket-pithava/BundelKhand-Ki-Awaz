@@ -22,7 +22,7 @@ export function NewsTicker({ items, invert }: { items: DynamicArticle[]; invert?
             {loop.map((it, idx) => (
               <Link key={`${it.id}-${idx}`} to="/article/$slug" params={{ slug: it.slug }} className="flex items-center gap-2 text-sm font-body-hindi group">
                 <span className={`text-[9px] font-bold uppercase tracking-widest ${invert ? "text-gold" : "text-orange"}`}>
-                  {it.district?.name || "बुंदेलखंड"}
+                  {it.district?.name || it.category?.name || "ताज़ा ख़बर"}
                 </span>
                 <span className={`${invert ? "text-paper/90 group-hover:text-gold" : "text-navy/85 group-hover:text-orange"} transition-colors`}>{it.title}</span>
                 <span className={`text-[10px] ${invert ? "text-paper/40" : "text-navy/35"}`}>· {it.time}</span>

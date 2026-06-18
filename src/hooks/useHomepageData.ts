@@ -35,14 +35,17 @@ export type DynamicAd = {
   variant: string;
   placement: string;
   image: string;
+  mobile_image?: string;
 };
 
 export type DynamicShakhsiyat = {
   id: string;
   name: string;
+  slug?: string;
   designation: string;
   quote: string;
   image: string;
+  description?: string;
 };
 
 export type DynamicReel = {
@@ -120,7 +123,7 @@ export function useHomepageData() {
 
       // 2. Fetch Placements and Categories
       const articleSelectQuery = `
-        id, title, slug, image_url, publish_at, created_at, excerpt, category_id, sort_order,
+        id, title, slug, image_url, publish_at, created_at, excerpt, category_id,
         district:districts(name, slug),
         category:categories(name, slug)
       `;
@@ -207,12 +210,8 @@ export function useHomepageData() {
       // 4. Bucket Category Sections
       const rawCat = catRes.data || [];
       
-      // Sort rawCat to respect sort_order (1, 2, 3) over default 0
+      // Sort rawCat to respect newest-first
       rawCat.sort((a: any, b: any) => {
-        const orderA = a.sort_order && a.sort_order > 0 ? a.sort_order : 999999;
-        const orderB = b.sort_order && b.sort_order > 0 ? b.sort_order : 999999;
-        if (orderA !== orderB) return orderA - orderB;
-        
         const dateA = new Date(a.publish_at || a.created_at || 0).getTime();
         const dateB = new Date(b.publish_at || b.created_at || 0).getTime();
         return dateB - dateA;
@@ -242,7 +241,7 @@ export function useHomepageData() {
       });
 
       // 5. Map Ads
-      const activeAds: DynamicAd[] = (adsRawRes.data || []).map((ad) => ({
+      const activeAds: DynamicAd[] = (adsRawRes.data || []).map((ad: any) => ({
         id: ad.id,
         title: ad.title,
         subtitle: ad.subtitle,
@@ -252,15 +251,18 @@ export function useHomepageData() {
         variant: ad.variant || "gold",
         placement: ad.placement,
         image: ad.image_url || "",
+        mobile_image: ad.mobile_image_url || "",
       }));
 
       // 6. Map Widgets (Shakhsiyat, Reels, Shows)
-      const shakhsiyat: DynamicShakhsiyat[] = (shakhsiyatRes.data || []).map((p) => ({
+      const shakhsiyat: DynamicShakhsiyat[] = (shakhsiyatRes.data || []).map((p: any) => ({
         id: p.id,
         name: p.name,
+        slug: p.slug || p.id,
         designation: p.designation,
         quote: p.quote,
         image: p.image,
+        description: p.description || "",
       }));
 
       const reels: DynamicReel[] = (reelsRes.data || []).map((r) => {

@@ -21,16 +21,17 @@ export const Route = createFileRoute("/article/$slug")({
 
     if (!error && data) {
       // @ts-ignore
-      const categoryName = data.category?.name || data.category_slug || 'news';
+      const categoryName = data.category?.name || (data as any).category_slug || 'news';
       article = {
         title: data.title,
         category: categoryName,
         slug: data.slug,
-        time: data.time_label || 'Recently',
+        time: (data as any).time_label || 'Recently',
         image: data.image_url || '',
+        mobileImage: (data as any).mobile_image_url || '',
         dek: data.dek || data.excerpt || '',
-        content: data.body || data.content || '',
-        author: data.author_name || 'हरबोले डेस्क'
+        content: data.body || (data as any).content || '',
+        author: (data as any).author_name || 'हरबोले डेस्क'
       } as any;
 
       if (data.category_id) {
@@ -129,13 +130,16 @@ function ArticlePage() {
             </div>
 
             <div className="px-4 md:px-6 lg:px-8">
-              <img
-                src={article.image}
-                alt={article.title}
-                width={1024}
-                height={680}
-                className="w-full aspect-[4/3] md:aspect-[21/9] object-contain rounded-2xl shadow-editorial"
-              />
+              <picture>
+                {article.mobileImage && <source media="(max-width: 767px)" srcSet={article.mobileImage} />}
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  width={1024}
+                  height={680}
+                  className="w-full aspect-[4/3] md:aspect-[21/9] object-contain rounded-2xl shadow-editorial"
+                />
+              </picture>
               <p className="text-[10px] uppercase tracking-widest text-navy/40 mt-2 px-1">— हरबोले फोटो</p>
             </div>
 
@@ -147,6 +151,45 @@ function ArticlePage() {
                   {article.dek || "इस खबर का पूरा विवरण जल्द ही उपलब्ध होगा।"}
                 </p>
               )}
+            </div>
+
+            <div className="px-6 md:px-8 lg:px-10 mt-10 mb-8 border-t border-navy/10 pt-6">
+              <h3 className="text-sm font-semibold text-navy mb-4 font-hindi">Share this article:</h3>
+              <div className="flex flex-wrap items-center gap-3">
+                {typeof navigator !== "undefined" && navigator.share && (
+                  <button
+                    onClick={() => {
+                      navigator.share({
+                        title: article.title,
+                        text: article.dek,
+                        url: window.location.href,
+                      }).catch(console.error);
+                    }}
+                    className="flex items-center gap-2 bg-navy text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-navy/90 transition"
+                  >
+                    <Share2 className="size-3" /> Share
+                  </button>
+                )}
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`${article.title} - ${typeof window !== "undefined" ? window.location.href : ""}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 rounded-full text-xs font-semibold hover:opacity-90 transition"
+                >
+                  WhatsApp
+                </a>
+                <button
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert("Link copied to clipboard!");
+                    }
+                  }}
+                  className="flex items-center gap-2 bg-paper text-navy ring-1 ring-navy/20 px-4 py-2 rounded-full text-xs font-semibold hover:bg-navy/5 transition"
+                >
+                  Copy Link
+                </button>
+              </div>
             </div>
           </article>
 
