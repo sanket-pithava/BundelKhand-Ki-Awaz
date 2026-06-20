@@ -130,14 +130,19 @@ function ArticlePage() {
             </div>
 
             <div className="px-4 md:px-6 lg:px-8">
-              <picture>
-                {article.mobileImage && <source media="(max-width: 767px)" srcSet={article.mobileImage} />}
+              <picture className="relative block w-full aspect-[4/3] md:aspect-[21/9] rounded-2xl overflow-hidden shadow-editorial bg-navy/5">
+                <img
+                  src={article.image}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-xl opacity-60 scale-110 saturate-150"
+                />
                 <img
                   src={article.image}
                   alt={article.title}
                   width={1024}
                   height={680}
-                  className="w-full aspect-[4/3] md:aspect-[21/9] object-contain rounded-2xl shadow-editorial"
+                  className="relative z-10 w-full h-full object-contain drop-shadow-md"
                 />
               </picture>
               <p className="text-[10px] uppercase tracking-widest text-navy/40 mt-2 px-1">— हरबोले फोटो</p>
@@ -231,7 +236,7 @@ function ArticlePage() {
                       params={{ slug: a.slug }}
                       className="flex md:flex-col gap-3 bg-white rounded-xl p-3 ring-1 ring-navy/5 shadow-editorial group hover:shadow-elevated transition-shadow"
                     >
-                      <img src={a.image} alt="" loading="lazy" className="size-20 md:size-auto md:w-full md:aspect-video object-contain rounded-lg shrink-0 group-hover:opacity-95" />
+                      <img src={a.image} alt="" loading="lazy" className="size-20 md:size-auto md:w-full md:aspect-video object-cover rounded-lg shrink-0 group-hover:opacity-95" />
                       <div className="min-w-0">
                         <div className="text-[9px] font-bold uppercase tracking-widest text-orange mb-1">{a.category}</div>
                         <h4 className="font-hindi text-sm md:text-base text-navy leading-snug line-clamp-3 group-hover:text-orange transition-colors">{a.title}</h4>

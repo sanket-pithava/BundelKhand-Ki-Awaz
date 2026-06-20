@@ -21,7 +21,7 @@ export function Shakhsiyat({ profiles }: { profiles: DynamicShakhsiyat[] }) {
             params={{ slug: p.slug! }}
             className="block shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] aspect-[3/4] relative rounded-2xl overflow-hidden ring-1 ring-navy/10 shadow-elevated group snap-start"
           >
-            <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-1000" />
+            <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
             <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/45 to-transparent" />
             <Quote className="absolute top-4 right-4 size-5 text-gold/70" />
             <div className="absolute bottom-0 left-0 right-0 p-5">

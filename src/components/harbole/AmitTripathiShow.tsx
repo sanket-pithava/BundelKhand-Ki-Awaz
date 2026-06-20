@@ -61,7 +61,7 @@ export function AmitTripathiShow({
                   onClick={() => setIsPlaying(true)}
                   className="w-full h-full text-left relative"
                 >
-                  <img src={activeEpisode.thumbnail} alt={activeEpisode.title} loading="lazy" className="absolute inset-0 w-full h-full object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000" />
+                  <img src={activeEpisode.thumbnail} alt={activeEpisode.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
                   <div className="absolute inset-0 grid place-items-center">
                     <div className="relative">

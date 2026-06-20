@@ -379,7 +379,7 @@ function ResourceManager({ resource }: { resource: Resource }) {
               return (
                 <tr key={r.id} className="border-t border-navy/5">
                   <td className="px-3 py-2">
-                    {img ? <img src={img} alt="" className="size-10 rounded object-contain" /> : <div className="size-10 rounded bg-navy/5" />}
+                    {img ? <img src={img} alt="" className="size-10 rounded object-cover" /> : <div className="size-10 rounded bg-navy/5" />}
                   </td>
                   <td className="px-3 py-2 font-medium">
                     {title}
@@ -640,7 +640,7 @@ export function EditDrawer({ resource, row, onClose, onSaved }: { resource: Reso
                 <div key={f.key}>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">{f.label}</label>
                   <div className="mt-1 flex items-center gap-3">
-                    {v ? <img src={v as string} alt="" className="size-16 rounded object-contain" /> : <div className="size-16 rounded bg-navy/5" />}
+                    {v ? <img src={v as string} alt="" className="size-16 rounded object-cover" /> : <div className="size-16 rounded bg-navy/5" />}
                     <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-navy/15 px-3 py-2 text-sm hover:bg-navy/5">
                       <Upload className="size-4" /> Upload
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleUpload(f.key, f0); }} />

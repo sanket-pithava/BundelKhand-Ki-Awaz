@@ -41,8 +41,8 @@ export function AdBanner({
         {(image || mobileImage) && (
           <picture className="absolute inset-0 w-full h-full">
             {mobileImage && <source media="(max-width: 767px)" srcSet={mobileImage} />}
-            {image && <img src={image} alt="" loading="lazy" className="w-full h-full object-contain" />}
-            {mobileImage && !image && <img src={mobileImage} alt="" loading="lazy" className="w-full h-full object-contain" />}
+            {image && <img src={image} alt="" loading="lazy" className="w-full h-full object-cover" />}
+            {mobileImage && !image && <img src={mobileImage} alt="" loading="lazy" className="w-full h-full object-cover" />}
           </picture>
         )}
         <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />

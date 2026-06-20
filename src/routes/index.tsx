@@ -158,7 +158,7 @@ function HomePage() {
                           rel="noopener noreferrer"
                           className="shrink-0 w-[calc(50%-6px)] md:w-[calc(25%-9px)] aspect-[9/16] rounded-xl overflow-hidden relative ring-1 ring-white/10 group block snap-start"
                         >
-                          <img src={r.thumbnail} alt={r.title} loading="lazy" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
+                          <img src={r.thumbnail} alt={r.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                           <div className="absolute top-2.5 right-2.5 size-7 rounded-full bg-paper/15 backdrop-blur grid place-items-center ring-1 ring-paper/20">
                             <Play className="size-3 text-paper fill-paper" />
@@ -331,6 +331,7 @@ function CategoryBand({
   href: string;
   items: { slug: string; title: string; category: string; time: string; image: string; author?: string }[];
 }) {
+  if (!items || items.length === 0) return null;
   return (
     <section className="py-8 md:py-12">
       <SectionHeader hindi={hindi} english={english} href={href} />

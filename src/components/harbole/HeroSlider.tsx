@@ -46,7 +46,7 @@ export function HeroSlider({ slides }: { slides: DynamicArticle[] }) {
               className={`absolute inset-0 transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               aria-hidden={idx !== i}
             >
-              <img src={s.image} alt={s.title} className="w-full h-full object-contain" loading={idx === 0 ? "eager" : "lazy"} />
+              <img src={s.image} alt={s.title} className="w-full h-full object-cover" loading={idx === 0 ? "eager" : "lazy"} />
               <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent" />
               <div className="absolute top-3 left-3 flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-orange text-paper text-[9px] font-bold uppercase tracking-widest rounded">

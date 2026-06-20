@@ -157,7 +157,7 @@ export function useHomepageData() {
           .eq("status", "published")
           .in("category_id", categoryIds)
           .order("publish_at", { ascending: false })
-          .limit(100)
+          .limit(300)
         : Promise.resolve({ data: [], error: null });
 
       const [heroRes, breakingRes, top10Res, impactRes, catRes] = await Promise.all([

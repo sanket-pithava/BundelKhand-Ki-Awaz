@@ -33,12 +33,22 @@ export function ArticleCard({ article, size = "md" }: { article: any; size?: "sm
     >
       <div className={`${aspect} relative overflow-hidden bg-navy/5`}>
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={article.title}
-            loading="lazy"
-            className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-700"
-          />
+          <>
+            {/* Blurred background to fill any aspect ratio gaps gracefully */}
+            <img
+              src={imageUrl}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover blur-xl opacity-60 scale-110 saturate-150"
+            />
+            {/* Main image using object-contain so text/edges never get cut off */}
+            <img
+              src={imageUrl}
+              alt={article.title}
+              loading="lazy"
+              className="relative z-10 w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-700 drop-shadow-md"
+            />
+          </>
         ) : (
           <div className="w-full h-full bg-navy/5 flex items-center justify-center">
              <span className="text-navy/30 font-medium text-xs">No Image</span>
