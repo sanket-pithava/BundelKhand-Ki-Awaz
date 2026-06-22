@@ -38,9 +38,17 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "हरबोले — बुंदेलखंड की आवाज़ | Harbole" },
-      { name: "description", content: "Premium regional journalism from Bundelkhand — politics, culture, villages, sports, impact stories." },
+      {
+        name: "description",
+        content:
+          "Premium regional journalism from Bundelkhand — politics, culture, villages, sports, impact stories.",
+      },
       { property: "og:title", content: "हरबोले — बुंदेलखंड की आवाज़" },
-      { property: "og:description", content: "Voice of the people, pride of the region — premium Bundeli journalism." },
+      {
+        property: "og:description",
+        content:
+          "Voice of the people, pride of the region — premium Bundeli journalism.",
+      },
     ],
   }),
   component: HomePage,
@@ -50,7 +58,10 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const search = useSearch({ from: "/" });
-  const { data: articles, isLoading } = useArticles(search.district, search.category);
+  const { data: articles, isLoading } = useArticles(
+    search.district,
+    search.category,
+  );
   const { data: homeData, isLoading: homeLoading } = useHomepageData();
 
   const isFiltered = !!(search.district || search.category);
@@ -65,14 +76,27 @@ function HomePage() {
               <SectionHeader hindi="ताज़ा ख़बरें" english="Filtered Results" />
               {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse">
-                  {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-navy/5 rounded-2xl" />)}
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="h-64 bg-navy/5 rounded-2xl" />
+                  ))}
                 </div>
               ) : articles?.length === 0 ? (
-                <div className="py-20 text-center text-navy/50 font-body-hindi">इस श्रेणी में अभी कोई ख़बर नहीं है। (No articles found)</div>
+                <div className="py-20 text-center text-navy/50 font-body-hindi">
+                  इस श्रेणी में अभी कोई ख़बर नहीं है। (No articles found)
+                </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {articles?.map(a => (
-                    <ArticleCard key={a.id} article={{ ...a, time: a.time_label || "", image: a.image_url || "" } as any} />
+                  {articles?.map((a) => (
+                    <ArticleCard
+                      key={a.id}
+                      article={
+                        {
+                          ...a,
+                          time: a.time_label || "",
+                          image: a.image_url || "",
+                        } as any
+                      }
+                    />
                   ))}
                 </div>
               )}
@@ -80,11 +104,15 @@ function HomePage() {
           ) : (
             <>
               {/* Live ticker */}
-              {homeData?.breakingNews?.length ? <NewsTicker items={homeData.breakingNews} /> : null}
+              {homeData?.breakingNews?.length ? (
+                <NewsTicker items={homeData.breakingNews} />
+              ) : null}
 
               {/* Hero auto-rotating slider */}
               {homeLoading ? (
-                <div className="p-4 md:px-6 md:py-6"><div className="aspect-[16/10] md:aspect-[21/9] bg-navy/5 rounded-2xl animate-pulse" /></div>
+                <div className="p-4 md:px-6 md:py-6">
+                  <div className="aspect-[16/10] md:aspect-[21/9] bg-navy/5 rounded-2xl animate-pulse" />
+                </div>
               ) : (
                 <HeroSlider slides={homeData?.heroArticles || []} />
               )}
@@ -97,10 +125,17 @@ function HomePage() {
               {/* Top 10 */}
               {homeData?.top10Articles?.length ? (
                 <section className="py-6">
-                  <SectionHeader hindi="बुंदेलखंड Top 10" english="Most Read Today" href="/category/top10" />
+                  <SectionHeader
+                    hindi="बुंदेलखंड Top 10"
+                    english="Most Read Today"
+                    href="/category/top10"
+                  />
                   <ScrollableRow className="gap-5 px-4 pb-2">
                     {homeData.top10Articles.map((a, i) => (
-                      <div key={a.slug} className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3">
+                      <div
+                        key={a.slug}
+                        className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3"
+                      >
                         <span className="absolute -top-1 -left-1 text-[80px] leading-none font-bold text-gold/25 italic select-none font-sans">
                           {String(i + 1).padStart(2, "0")}
                         </span>
@@ -114,13 +149,14 @@ function HomePage() {
               ) : null}
 
               {/* Ticker 2 */}
-              {homeData?.breakingNews?.length ? <NewsTicker items={homeData.breakingNews} invert /> : null}
+              {homeData?.breakingNews?.length ? (
+                <NewsTicker items={homeData.breakingNews} invert />
+              ) : null}
 
               {/* Ads Carousel */}
               {homeData?.ads && homeData.ads.length > 0 && (
                 <AutoScrollingAds ads={homeData.ads} />
               )}
-
 
               {/* DYNAMIC CATEGORY SECTIONS AND STATIC WIDGETS */}
               {/* We will render static components at specific positions relative to dynamic sections, but guarantee they render even if sections are missing */}
@@ -148,7 +184,11 @@ function HomePage() {
                 )}
                 {homeData?.reels && homeData.reels.length > 0 && (
                   <section className="bg-navy py-10 grain">
-                    <SectionHeader hindi="लोक रंग" english="Bundeli Reels" invert />
+                    <SectionHeader
+                      hindi="लोक रंग"
+                      english="Bundeli Reels"
+                      invert
+                    />
                     <ScrollableRow className="gap-3 px-4 pb-2">
                       {homeData.reels.map((r) => (
                         <a
@@ -158,13 +198,20 @@ function HomePage() {
                           rel="noopener noreferrer"
                           className="shrink-0 w-[calc(50%-6px)] md:w-[calc(25%-9px)] aspect-[9/16] rounded-xl overflow-hidden relative ring-1 ring-white/10 group block snap-start"
                         >
-                          <img src={r.thumbnail} alt={r.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                          <img
+                            src={r.thumbnail}
+                            alt={r.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                           <div className="absolute top-2.5 right-2.5 size-7 rounded-full bg-paper/15 backdrop-blur grid place-items-center ring-1 ring-paper/20">
                             <Play className="size-3 text-paper fill-paper" />
                           </div>
                           <div className="absolute bottom-3 left-3 right-3">
-                            <p className="text-paper text-xs font-body-hindi leading-snug mb-1">{r.title}</p>
+                            <p className="text-paper text-xs font-body-hindi leading-snug mb-1">
+                              {r.title}
+                            </p>
                             <div className="flex justify-between items-center text-paper/50 text-[10px] font-semibold">
                               <span>{r.views}</span>
                               <span>{r.duration}</span>
@@ -195,7 +242,10 @@ function HomePage() {
                     items={homeData.categorySections[3].articles as any}
                   />
                 )}
-                <AmitTripathiShow featuredEpisode={homeData?.featuredEpisode} pastEpisodes={homeData?.pastEpisodes || []} />
+                <AmitTripathiShow
+                  featuredEpisode={homeData?.featuredEpisode}
+                  pastEpisodes={homeData?.pastEpisodes || []}
+                />
 
                 {/* Slot 4: Dynamic Section 4 */}
                 {homeData?.categorySections?.[4] && (
@@ -218,7 +268,6 @@ function HomePage() {
                   />
                 ))}
               </div>
-
             </>
           )}
 
@@ -231,15 +280,21 @@ function HomePage() {
               <Logo className="h-16 w-auto" />
               <div>
                 <div className="font-hindi text-2xl">हरबोले</div>
-                <div className="text-[9px] uppercase tracking-[0.3em] text-gold/80">Bundelkhand Ki Awaaz</div>
+                <div className="text-[9px] uppercase tracking-[0.3em] text-gold/80">
+                  Bundelkhand Ki Awaaz
+                </div>
               </div>
             </div>
             <p className="text-paper/55 text-sm font-body-hindi leading-relaxed mb-8 max-w-prose">
-              बुंदेलखंड की मिट्टी, उसकी आवाज़, उसके लोग — हरबोले एक स्वतंत्र प्रीमियम डिजिटल मीडिया मंच है जो क्षेत्रीय पत्रकारिता को आधुनिक रूप में पेश करता है।
+              बुंदेलखंड की मिट्टी, उसकी आवाज़, उसके लोग — हरबोले एक स्वतंत्र
+              प्रीमियम डिजिटल मीडिया मंच है जो क्षेत्रीय पत्रकारिता को आधुनिक
+              रूप में पेश करता है।
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
               <div>
-                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">Sections</div>
+                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">
+                  Sections
+                </div>
                 <ul className="space-y-2 text-sm text-paper/70 font-body-hindi">
                   <li>राजनीति</li>
                   <li>खेल</li>
@@ -249,7 +304,9 @@ function HomePage() {
                 </ul>
               </div>
               <div>
-                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">Editorial</div>
+                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">
+                  Editorial
+                </div>
                 <ul className="space-y-2 text-sm text-paper/70 font-body-hindi">
                   <li>हमारा सिद्धांत</li>
                   <li>The Amit Tripathi Show</li>
@@ -258,7 +315,9 @@ function HomePage() {
                 </ul>
               </div>
               <div className="hidden md:block">
-                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">Region</div>
+                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">
+                  Region
+                </div>
                 <ul className="space-y-2 text-sm text-paper/70 font-body-hindi">
                   <li>झांसी</li>
                   <li>महोबा</li>
@@ -268,7 +327,9 @@ function HomePage() {
                 </ul>
               </div>
               <div className="hidden md:block">
-                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">Company</div>
+                <div className="text-gold text-[9px] font-bold uppercase tracking-[0.25em] mb-3">
+                  Company
+                </div>
                 <ul className="space-y-2 text-sm text-paper/70 font-body-hindi">
                   <li>About Harbole</li>
                   <li>Careers</li>
@@ -302,7 +363,11 @@ function HomePage() {
                   aria-label={label}
                   className="size-9 rounded-full ring-1 ring-white/15 grid place-items-center text-paper/80 hover:bg-white/5 hover:text-gold transition"
                 >
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-4"
+                  >
                     <path d={path} />
                   </svg>
                 </a>
@@ -329,7 +394,14 @@ function CategoryBand({
   hindi: string;
   english: string;
   href: string;
-  items: { slug: string; title: string; category: string; time: string; image: string; author?: string }[];
+  items: {
+    slug: string;
+    title: string;
+    category: string;
+    time: string;
+    image: string;
+    author?: string;
+  }[];
 }) {
   if (!items || items.length === 0) return null;
   return (
@@ -337,7 +409,10 @@ function CategoryBand({
       <SectionHeader hindi={hindi} english={english} href={href} />
       <ScrollableRow className="gap-4 md:gap-6 px-4 md:px-6 pb-2">
         {items.map((a) => (
-          <div key={a.slug} className="shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start">
+          <div
+            key={a.slug}
+            className="shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start"
+          >
             <ArticleCard article={a} />
           </div>
         ))}

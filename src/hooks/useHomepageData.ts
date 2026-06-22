@@ -109,17 +109,20 @@ export function useHomepageData() {
         .eq("status", true)
         .order("sort_order", { ascending: true });
 
-      const [sectionsRes, adsRawRes, shakhsiyatRes, reelsRes, showsRes] = await Promise.all([
-        sectionsPromise,
-        adsPromise,
-        shakhsiyatPromise,
-        reelsPromise,
-        showsPromise,
-      ]);
+      const [sectionsRes, adsRawRes, shakhsiyatRes, reelsRes, showsRes] =
+        await Promise.all([
+          sectionsPromise,
+          adsPromise,
+          shakhsiyatPromise,
+          reelsPromise,
+          showsPromise,
+        ]);
 
       if (sectionsRes.error) throw sectionsRes.error;
       const sections = sectionsRes.data || [];
-      const categoryIds = sections.map((s) => s.category_id).filter(Boolean) as string[];
+      const categoryIds = sections
+        .map((s) => s.category_id)
+        .filter(Boolean) as string[];
 
       // 2. Fetch Placements and Categories
       const articleSelectQuery = `
@@ -150,26 +153,29 @@ export function useHomepageData() {
         .eq("is_impact", true)
         .order("publish_at", { ascending: false });
 
-      const categoryPromise = categoryIds.length > 0
-        ? supabase
-          .from("articles")
-          .select(articleSelectQuery)
-          .eq("status", "published")
-          .in("category_id", categoryIds)
-          .order("publish_at", { ascending: false })
-          .limit(300)
-        : Promise.resolve({ data: [], error: null });
+      const categoryPromise =
+        categoryIds.length > 0
+          ? supabase
+              .from("articles")
+              .select(articleSelectQuery)
+              .eq("status", "published")
+              .in("category_id", categoryIds)
+              .order("publish_at", { ascending: false })
+              .limit(300)
+          : Promise.resolve({ data: [], error: null });
 
-      const [heroRes, breakingRes, top10Res, impactRes, catRes] = await Promise.all([
-        heroPromise,
-        breakingPromise,
-        top10Promise,
-        impactPromise,
-        categoryPromise,
-      ]);
+      const [heroRes, breakingRes, top10Res, impactRes, catRes] =
+        await Promise.all([
+          heroPromise,
+          breakingPromise,
+          top10Promise,
+          impactPromise,
+          categoryPromise,
+        ]);
 
       if (heroRes.error) console.error("Hero Error:", heroRes.error);
-      if (breakingRes.error) console.error("Breaking Error:", breakingRes.error);
+      if (breakingRes.error)
+        console.error("Breaking Error:", breakingRes.error);
       if (top10Res.error) console.error("Top10 Error:", top10Res.error);
       if (impactRes.error) console.error("Impact Error:", impactRes.error);
       if (catRes.error) throw catRes.error;
@@ -181,8 +187,12 @@ export function useHomepageData() {
           id: row.id,
           title: row.title,
           slug: row.slug,
-          district: Array.isArray(row.district) ? row.district[0] : row.district,
-          category: Array.isArray(row.category) ? row.category[0] : row.category,
+          district: Array.isArray(row.district)
+            ? row.district[0]
+            : row.district,
+          category: Array.isArray(row.category)
+            ? row.category[0]
+            : row.category,
           time: getRelativeTimeHindi(row.publish_at || row.created_at),
           image: row.image_url || "",
           authorName: "हरबोले डेस्क",
@@ -204,12 +214,13 @@ export function useHomepageData() {
         .filter((a) => a && a.id)
         .slice(0, 10);
 
-      const impactArticles: DynamicArticle[] = (impactRes.data || [])
-        .map((r) => transform(r));
+      const impactArticles: DynamicArticle[] = (impactRes.data || []).map((r) =>
+        transform(r),
+      );
 
       // 4. Bucket Category Sections
       const rawCat = catRes.data || [];
-      
+
       // Sort rawCat to respect newest-first
       rawCat.sort((a: any, b: any) => {
         const dateA = new Date(a.publish_at || a.created_at || 0).getTime();
@@ -218,7 +229,9 @@ export function useHomepageData() {
       });
 
       const mappedSections: HomepageSection[] = sections.map((sec) => {
-        const catSlug = Array.isArray(sec.category) ? sec.category[0]?.slug : (sec.category as any)?.slug;
+        const catSlug = Array.isArray(sec.category)
+          ? sec.category[0]?.slug
+          : (sec.category as any)?.slug;
         const sectionArticles: DynamicArticle[] = [];
 
         // Distribute articles into this section directly (no exclusions)
@@ -255,15 +268,17 @@ export function useHomepageData() {
       }));
 
       // 6. Map Widgets (Shakhsiyat, Reels, Shows)
-      const shakhsiyat: DynamicShakhsiyat[] = (shakhsiyatRes.data || []).map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug || p.id,
-        designation: p.designation,
-        quote: p.quote,
-        image: p.image,
-        description: p.description || "",
-      }));
+      const shakhsiyat: DynamicShakhsiyat[] = (shakhsiyatRes.data || []).map(
+        (p: any) => ({
+          id: p.id,
+          name: p.name,
+          slug: p.slug || p.id,
+          designation: p.designation,
+          quote: p.quote,
+          image: p.image,
+          description: p.description || "",
+        }),
+      );
 
       const reels: DynamicReel[] = (reelsRes.data || []).map((r) => {
         const ytId = extractYouTubeId(r.video_url);
@@ -299,7 +314,8 @@ export function useHomepageData() {
         };
       });
 
-      const featuredEpisode = episodes.find((e) => e.is_featured) || episodes[0] || null;
+      const featuredEpisode =
+        episodes.find((e) => e.is_featured) || episodes[0] || null;
       const pastEpisodes = episodes.filter((e) => e.id !== featuredEpisode?.id);
 
       return {

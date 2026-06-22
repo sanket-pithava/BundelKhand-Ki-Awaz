@@ -7,10 +7,25 @@ import TextAlign from "@tiptap/extension-text-align";
 import Youtube from "@tiptap/extension-youtube";
 import { uploadMedia } from "@/lib/admin/upload";
 import {
-  Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  List, ListOrdered, Quote, Heading1, Heading2, Heading3,
-  Link as LinkIcon, Image as ImageIcon, Video, Undo, Redo
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  List,
+  ListOrdered,
+  Quote,
+  Heading1,
+  Heading2,
+  Heading3,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Video,
+  Undo,
+  Redo,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCallback } from "react";
@@ -90,61 +105,121 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-2 bg-navy/5 border-b border-navy/15 rounded-t-lg">
-      <MenuButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive("bold")} title="Bold">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        isActive={editor.isActive("bold")}
+        title="Bold"
+      >
         <Bold className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive("italic")} title="Italic">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        isActive={editor.isActive("italic")}
+        title="Italic"
+      >
         <Italic className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleUnderline().run()} isActive={editor.isActive("underline")} title="Underline">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        isActive={editor.isActive("underline")}
+        title="Underline"
+      >
         <UnderlineIcon className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive("strike")} title="Strike">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+        isActive={editor.isActive("strike")}
+        title="Strike"
+      >
         <Strikethrough className="w-4 h-4" />
       </MenuButton>
 
       <div className="w-px h-5 bg-navy/20 mx-1" />
 
-      <MenuButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive("heading", { level: 1 })} title="Heading 1">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        isActive={editor.isActive("heading", { level: 1 })}
+        title="Heading 1"
+      >
         <Heading1 className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive("heading", { level: 2 })} title="Heading 2">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        isActive={editor.isActive("heading", { level: 2 })}
+        title="Heading 2"
+      >
         <Heading2 className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor.isActive("heading", { level: 3 })} title="Heading 3">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        isActive={editor.isActive("heading", { level: 3 })}
+        title="Heading 3"
+      >
         <Heading3 className="w-4 h-4" />
       </MenuButton>
 
       <div className="w-px h-5 bg-navy/20 mx-1" />
 
-      <MenuButton onClick={() => editor.chain().focus().setTextAlign("left").run()} isActive={editor.isActive({ textAlign: "left" })} title="Align Left">
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign("left").run()}
+        isActive={editor.isActive({ textAlign: "left" })}
+        title="Align Left"
+      >
         <AlignLeft className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().setTextAlign("center").run()} isActive={editor.isActive({ textAlign: "center" })} title="Align Center">
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign("center").run()}
+        isActive={editor.isActive({ textAlign: "center" })}
+        title="Align Center"
+      >
         <AlignCenter className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().setTextAlign("right").run()} isActive={editor.isActive({ textAlign: "right" })} title="Align Right">
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign("right").run()}
+        isActive={editor.isActive({ textAlign: "right" })}
+        title="Align Right"
+      >
         <AlignRight className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().setTextAlign("justify").run()} isActive={editor.isActive({ textAlign: "justify" })} title="Justify">
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+        isActive={editor.isActive({ textAlign: "justify" })}
+        title="Justify"
+      >
         <AlignJustify className="w-4 h-4" />
       </MenuButton>
 
       <div className="w-px h-5 bg-navy/20 mx-1" />
 
-      <MenuButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive("bulletList")} title="Bullet List">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        isActive={editor.isActive("bulletList")}
+        title="Bullet List"
+      >
         <List className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive("orderedList")} title="Numbered List">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        isActive={editor.isActive("orderedList")}
+        title="Numbered List"
+      >
         <ListOrdered className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive("blockquote")} title="Quote">
+      <MenuButton
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        isActive={editor.isActive("blockquote")}
+        title="Quote"
+      >
         <Quote className="w-4 h-4" />
       </MenuButton>
 
       <div className="w-px h-5 bg-navy/20 mx-1" />
 
-      <MenuButton onClick={toggleLink} isActive={editor.isActive("link")} title="Hyperlink">
+      <MenuButton
+        onClick={toggleLink}
+        isActive={editor.isActive("link")}
+        title="Hyperlink"
+      >
         <LinkIcon className="w-4 h-4" />
       </MenuButton>
       <MenuButton onClick={addImage} title="Insert Image">
@@ -156,10 +231,18 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <div className="w-px h-5 bg-navy/20 mx-1" />
 
-      <MenuButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo">
+      <MenuButton
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+        title="Undo"
+      >
         <Undo className="w-4 h-4" />
       </MenuButton>
-      <MenuButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo">
+      <MenuButton
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+        title="Redo"
+      >
         <Redo className="w-4 h-4" />
       </MenuButton>
     </div>

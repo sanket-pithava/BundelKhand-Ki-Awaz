@@ -18,20 +18,29 @@ type Props = {
   alreadySelectedIds?: string[];
 };
 
-export function ArticlePickerModal({ onSelect, onClose, alreadySelectedIds = [] }: Props) {
+export function ArticlePickerModal({
+  onSelect,
+  onClose,
+  alreadySelectedIds = [],
+}: Props) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    [],
+  );
   const [categoryId, setCategoryId] = useState<string>("");
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const limit = 20;
 
   useEffect(() => {
-    (supabase as any).from("categories").select("id, name").then(({ data }: any) => {
-      if (data) setCategories(data);
-    });
+    (supabase as any)
+      .from("categories")
+      .select("id, name")
+      .then(({ data }: any) => {
+        if (data) setCategories(data);
+      });
   }, []);
 
   async function fetchArticles(isNewSearch = false) {
@@ -39,14 +48,16 @@ export function ArticlePickerModal({ onSelect, onClose, alreadySelectedIds = [] 
       setLoading(true);
       setPage(0);
     }
-    
+
     let query = (supabase as any)
       .from("articles")
-      .select(`
+      .select(
+        `
         id, title, slug, image_url, publish_at,
         category:categories(name),
         district:districts(name)
-      `)
+      `,
+      )
       .eq("status", "published")
       .order("publish_at", { ascending: false });
 
@@ -65,15 +76,18 @@ export function ArticlePickerModal({ onSelect, onClose, alreadySelectedIds = [] 
     if (error) {
       console.error(error);
     } else {
-      const formatted = data?.map((d: any) => ({
-        ...d,
-        category: Array.isArray(d.category) ? d.category[0] : d.category,
-        district: Array.isArray(d.district) ? d.district[0] : d.district,
-      })) || [];
-      
-      setArticles(prev => isNewSearch ? formatted : [...prev, ...formatted]);
+      const formatted =
+        data?.map((d: any) => ({
+          ...d,
+          category: Array.isArray(d.category) ? d.category[0] : d.category,
+          district: Array.isArray(d.district) ? d.district[0] : d.district,
+        })) || [];
+
+      setArticles((prev) =>
+        isNewSearch ? formatted : [...prev, ...formatted],
+      );
       setHasMore(formatted.length === limit);
-      if (!isNewSearch) setPage(p => p + 1);
+      if (!isNewSearch) setPage((p) => p + 1);
     }
     setLoading(false);
   }
@@ -92,7 +106,10 @@ export function ArticlePickerModal({ onSelect, onClose, alreadySelectedIds = [] 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-navy/10 px-6 py-4">
           <h2 className="text-xl font-bold text-navy">Select Article</h2>
-          <button onClick={onClose} className="rounded-full p-2 text-navy/50 hover:bg-navy/5 hover:text-navy">
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-navy/50 hover:bg-navy/5 hover:text-navy"
+          >
             <X className="size-5" />
           </button>
         </div>
@@ -152,7 +169,11 @@ export function ArticlePickerModal({ onSelect, onClose, alreadySelectedIds = [] 
                   >
                     <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-navy/5">
                       {article.image_url ? (
-                        <img src={article.image_url} alt="" className="h-full w-full object-contain" />
+                        <img
+                          src={article.image_url}
+                          alt=""
+                          className="h-full w-full object-contain"
+                        />
                       ) : null}
                       {isSelected && (
                         <div className="absolute inset-0 flex items-center justify-center bg-navy/50 text-white backdrop-blur-[2px]">

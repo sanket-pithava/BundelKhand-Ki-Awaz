@@ -1,14 +1,14 @@
 import { useRef, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export function ScrollableRow({ 
-  children, 
+export function ScrollableRow({
+  children,
   className = "gap-4 md:gap-6 px-4 md:px-6",
-  autoScroll = false
-}: { 
-  children: React.ReactNode, 
-  className?: string,
-  autoScroll?: boolean
+  autoScroll = false,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  autoScroll?: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -17,9 +17,12 @@ export function ScrollableRow({
     if (scrollRef.current) {
       const { clientWidth, scrollWidth, scrollLeft } = scrollRef.current;
       const scrollAmount = direction === "left" ? -clientWidth : clientWidth;
-      
+
       // If at the end and going right, loop back to start
-      if (direction === "right" && scrollLeft + clientWidth >= scrollWidth - 10) {
+      if (
+        direction === "right" &&
+        scrollLeft + clientWidth >= scrollWidth - 10
+      ) {
         scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
       } else {
         scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
@@ -38,7 +41,7 @@ export function ScrollableRow({
   }, [autoScroll, isHovered]);
 
   return (
-    <div 
+    <div
       className="relative group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -52,8 +55,11 @@ export function ScrollableRow({
       >
         <ChevronLeft className="size-6" />
       </button>
-      
-      <div ref={scrollRef} className={`flex overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory scroll-smooth ${className}`}>
+
+      <div
+        ref={scrollRef}
+        className={`flex overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory scroll-smooth ${className}`}
+      >
         {children}
       </div>
 

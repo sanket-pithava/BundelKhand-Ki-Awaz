@@ -11,7 +11,11 @@ interface HeaderProps {
   activeCategorySlug?: string;
 }
 
-export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySlug }: HeaderProps) {
+export function Header({
+  activeJilaSlug,
+  activeSubDistrictSlug,
+  activeCategorySlug,
+}: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -27,7 +31,7 @@ export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySl
 
   const selectedDistrict = useMemo(() => {
     if (!data?.districts) return null;
-    return data.districts.find(d => d.slug === selectedDistrictSlug) || null;
+    return data.districts.find((d) => d.slug === selectedDistrictSlug) || null;
   }, [data, selectedDistrictSlug]);
 
   const displayCategories = useMemo(() => {
@@ -35,33 +39,37 @@ export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySl
     if (!selectedDistrict) return data.categories;
 
     const mappedCategoryIds = data.district_categories
-      .filter(dc => dc.district_id === selectedDistrict.id)
-      .map(dc => dc.category_id);
+      .filter((dc) => dc.district_id === selectedDistrict.id)
+      .map((dc) => dc.category_id);
 
-    return data.categories.filter(c => mappedCategoryIds.includes(c.id));
+    return data.categories.filter((c) => mappedCategoryIds.includes(c.id));
   }, [data, selectedDistrict]);
 
-  function handleDistrictClick(slug: string) {
+  const getDistrictUrl = (slug: string) => {
     if (selectedDistrictSlug === slug) {
-      navigate({ to: selectedCategorySlug ? `/category/${encodeURIComponent(selectedCategorySlug)}` : '/' });
-    } else {
-      navigate({ to: selectedCategorySlug ? `/news/${encodeURIComponent(slug)}/category/${encodeURIComponent(selectedCategorySlug)}` : `/news/${encodeURIComponent(slug)}` });
+      return selectedCategorySlug
+        ? `/category/${encodeURIComponent(selectedCategorySlug)}`
+        : "/";
     }
-  }
+    return selectedCategorySlug
+      ? `/news/${encodeURIComponent(slug)}/category/${encodeURIComponent(selectedCategorySlug)}`
+      : `/news/${encodeURIComponent(slug)}`;
+  };
 
-  function handleCategoryClick(slug: string) {
+  const getCategoryUrl = (slug: string) => {
     if (selectedCategorySlug === slug) {
-      let url = '/';
-      if (selectedDistrictSlug && activeSubDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}`;
-      else if (selectedDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}`;
-      navigate({ to: url });
-    } else {
-      let url = `/category/${encodeURIComponent(slug)}`;
-      if (selectedDistrictSlug && activeSubDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}/category/${encodeURIComponent(slug)}`;
-      else if (selectedDistrictSlug) url = `/news/${encodeURIComponent(selectedDistrictSlug)}/category/${encodeURIComponent(slug)}`;
-      navigate({ to: url });
+      if (selectedDistrictSlug && activeSubDistrictSlug)
+        return `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}`;
+      if (selectedDistrictSlug)
+        return `/news/${encodeURIComponent(selectedDistrictSlug)}`;
+      return "/";
     }
-  }
+    if (selectedDistrictSlug && activeSubDistrictSlug)
+      return `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}/category/${encodeURIComponent(slug)}`;
+    if (selectedDistrictSlug)
+      return `/news/${encodeURIComponent(selectedDistrictSlug)}/category/${encodeURIComponent(slug)}`;
+    return `/category/${encodeURIComponent(slug)}`;
+  };
 
   return (
     <>
@@ -78,21 +86,35 @@ export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySl
             <Link to="/" className="flex items-center gap-2 group">
               <Logo className="h-14 sm:h-16 md:h-20 w-auto group-active:scale-95 transition-transform" />
               <div className="flex flex-col leading-none -ml-1">
-                <span className="font-hindi text-[20px] md:text-[26px] font-semibold tracking-tight text-navy">हरबोले</span>
-                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.22em] text-orange mt-0.5">Bundelkhand Ki Awaaz</span>
+                <span className="font-hindi text-[20px] md:text-[26px] font-semibold tracking-tight text-navy">
+                  हरबोले
+                </span>
+                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.22em] text-orange mt-0.5">
+                  Bundelkhand Ki Awaaz
+                </span>
               </div>
             </Link>
           </div>
 
           <div className="flex items-center gap-1 md:gap-2">
-            <button aria-label="Live TV" className="h-9 md:h-10 px-2.5 md:px-3.5 flex items-center gap-1.5 rounded-full bg-orange text-paper text-[10px] md:text-xs font-bold uppercase tracking-wider active:scale-95 transition shadow-editorial">
+            <button
+              aria-label="Live TV"
+              className="h-9 md:h-10 px-2.5 md:px-3.5 flex items-center gap-1.5 rounded-full bg-orange text-paper text-[10px] md:text-xs font-bold uppercase tracking-wider active:scale-95 transition shadow-editorial"
+            >
               <span className="size-1.5 rounded-full bg-paper animate-pulse" />
               <Radio className="size-3 md:size-3.5" /> Live
             </button>
-            <button aria-label="Search" className="size-9 md:size-10 grid place-items-center rounded-full hover:bg-navy/5 active:scale-95 transition">
+            <button
+              aria-label="Search"
+              className="size-9 md:size-10 grid place-items-center rounded-full hover:bg-navy/5 active:scale-95 transition"
+            >
               <Search className="size-4 text-navy" strokeWidth={2} />
             </button>
-            <Link to="/admin" aria-label="Profile" className="size-9 md:size-10 grid place-items-center rounded-full ring-1 ring-navy/15 hover:bg-navy/5 active:scale-95 transition">
+            <Link
+              to="/admin"
+              aria-label="Profile"
+              className="size-9 md:size-10 grid place-items-center rounded-full ring-1 ring-navy/15 hover:bg-navy/5 active:scale-95 transition"
+            >
               <User className="size-4 text-navy" strokeWidth={2} />
             </Link>
             <button
@@ -119,16 +141,17 @@ export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySl
                 data?.districts?.map((d) => {
                   const active = d.slug === selectedDistrictSlug;
                   return (
-                    <button
+                    <Link
                       key={d.id}
-                      onClick={() => handleDistrictClick(d.slug)}
-                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${active
-                        ? "bg-navy text-paper shadow-editorial"
-                        : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
-                        }`}
+                      to={getDistrictUrl(d.slug) as any}
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${
+                        active
+                          ? "bg-navy text-paper shadow-editorial"
+                          : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
+                      }`}
                     >
                       {d.name}
-                    </button>
+                    </Link>
                   );
                 })
               )}
@@ -147,21 +170,24 @@ export function Header({ activeJilaSlug, activeSubDistrictSlug, activeCategorySl
               {isLoading ? (
                 <div className="h-8 w-48 bg-navy/5 animate-pulse rounded-full" />
               ) : displayCategories.length === 0 ? (
-                <span className="text-xs text-navy/40 italic flex items-center h-8">No categories assigned</span>
+                <span className="text-xs text-navy/40 italic flex items-center h-8">
+                  No categories assigned
+                </span>
               ) : (
                 displayCategories.map((c) => {
                   const active = c.slug === selectedCategorySlug;
                   return (
-                    <button
+                    <Link
                       key={c.id}
-                      onClick={() => handleCategoryClick(c.slug)}
-                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${active
-                        ? "bg-orange text-paper shadow-editorial"
-                        : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
-                        }`}
+                      to={getCategoryUrl(c.slug) as any}
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm sm:text-base font-body-hindi font-medium transition-all ${
+                        active
+                          ? "bg-orange text-paper shadow-editorial"
+                          : "bg-white text-navy/75 ring-1 ring-navy/10 hover:ring-navy/30"
+                      }`}
                     >
                       {c.name}
-                    </button>
+                    </Link>
                   );
                 })
               )}

@@ -27,10 +27,14 @@ export function BottomNav() {
                 className={`size-5 transition-colors ${active ? "text-orange" : "text-navy/40 group-hover:text-navy"}`}
                 strokeWidth={active ? 2.4 : 1.8}
               />
-              <span className={`text-[9px] font-semibold uppercase tracking-wider ${active ? "text-orange" : "text-navy/40"}`}>
+              <span
+                className={`text-[9px] font-semibold uppercase tracking-wider ${active ? "text-orange" : "text-navy/40"}`}
+              >
                 {label}
               </span>
-              {active && <div className="absolute -bottom-0 size-1 rounded-full bg-orange" />}
+              {active && (
+                <div className="absolute -bottom-0 size-1 rounded-full bg-orange" />
+              )}
             </Link>
           );
         })}

@@ -20,9 +20,9 @@ export function AutoScrollingAds({ ads }: { ads: any[] }) {
       const { clientWidth } = scrollRef.current;
       scrollRef.current.scrollTo({
         left: clientWidth * currentIndex,
-        behavior: "smooth"
+        behavior: "smooth",
       });
-      
+
       const timer = setTimeout(() => {
         isAutoScrolling.current = false;
       }, 800);
@@ -34,8 +34,8 @@ export function AutoScrollingAds({ ads }: { ads: any[] }) {
 
   return (
     <div className="relative w-full">
-      <div 
-        ref={scrollRef} 
+      <div
+        ref={scrollRef}
         className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar"
         onScroll={(e) => {
           if (isAutoScrolling.current) return;
@@ -52,7 +52,7 @@ export function AutoScrollingAds({ ads }: { ads: any[] }) {
           </div>
         ))}
       </div>
-      
+
       {ads.length > 1 && (
         <div className="flex justify-center gap-1.5 -mt-4 mb-4 relative z-10">
           {ads.map((_, i) => (

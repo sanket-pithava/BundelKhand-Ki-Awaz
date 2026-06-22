@@ -1,28 +1,38 @@
 import { Link } from "@tanstack/react-router";
 
-export function ArticleCard({ article, size = "md" }: { article: any; size?: "sm" | "md" | "lg" }) {
-  const aspect = size === "lg" ? "aspect-[4/3]" : "aspect-video";
-  
+export function ArticleCard({
+  article,
+  size = "md",
+}: {
+  article: any;
+  size?: "sm" | "md" | "lg";
+}) {
+  // Removed fixed aspect ratio so image can fit without empty space or cropping
+
   // Handle both dummy data format (image) and Supabase database format (image_url)
   const imageUrl = article.image_url || article.image;
-  
+
   // Handle categories flexibly
-  const categoryStr = 
-    article.categories?.name || 
-    article.category_slug || 
-    (typeof article.category === "string" ? article.category : article.category?.name) || 
+  const categoryStr =
+    article.categories?.name ||
+    article.category_slug ||
+    (typeof article.category === "string"
+      ? article.category
+      : article.category?.name) ||
     "ख़बर";
-    
+
   // Handle time formatting (dummy data uses 'time', db uses 'publish_at' or 'created_at')
   let timeStr = article.time;
   if (!timeStr && (article.publish_at || article.created_at)) {
-    timeStr = new Date(article.publish_at || article.created_at).toLocaleDateString('hi-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    timeStr = new Date(
+      article.publish_at || article.created_at,
+    ).toLocaleDateString("hi-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   }
-  
+
   const authorStr = article.profiles?.display_name || article.author;
 
   return (
@@ -31,27 +41,17 @@ export function ArticleCard({ article, size = "md" }: { article: any; size?: "sm
       params={{ slug: article.slug }}
       className="group block bg-white rounded-xl overflow-hidden ring-1 ring-navy/5 shadow-editorial hover:shadow-elevated transition-all"
     >
-      <div className={`${aspect} relative overflow-hidden bg-navy/5`}>
+      <div className="relative overflow-hidden bg-navy/5">
         {imageUrl ? (
-          <>
-            {/* Blurred background to fill any aspect ratio gaps gracefully */}
-            <img
-              src={imageUrl}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover blur-xl opacity-60 scale-110 saturate-150"
-            />
-            {/* Main image using object-contain so text/edges never get cut off */}
-            <img
-              src={imageUrl}
-              alt={article.title}
-              loading="lazy"
-              className="relative z-10 w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-700 drop-shadow-md"
-            />
-          </>
+          <img
+            src={imageUrl}
+            alt={article.title}
+            loading="lazy"
+            className="w-full h-auto object-contain block group-hover:scale-[1.03] transition-transform duration-700"
+          />
         ) : (
           <div className="w-full h-full bg-navy/5 flex items-center justify-center">
-             <span className="text-navy/30 font-medium text-xs">No Image</span>
+            <span className="text-navy/30 font-medium text-xs">No Image</span>
           </div>
         )}
         <span className="absolute top-3 left-3 bg-paper/95 backdrop-blur text-navy text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded shadow-sm">
@@ -59,7 +59,9 @@ export function ArticleCard({ article, size = "md" }: { article: any; size?: "sm
         </span>
       </div>
       <div className="p-4 flex flex-col justify-between flex-1">
-        <h3 className={`font-hindi font-medium leading-snug text-navy text-pretty ${size === "lg" ? "text-xl" : "text-base"}`}>
+        <h3
+          className={`font-hindi font-medium leading-snug text-navy text-pretty ${size === "lg" ? "text-xl" : "text-base"}`}
+        >
           {article.title}
         </h3>
         <div className="mt-3 flex items-center gap-2 text-[10px] uppercase tracking-widest text-navy/40 font-semibold">

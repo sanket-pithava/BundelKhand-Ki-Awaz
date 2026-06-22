@@ -20,14 +20,14 @@ export function getRelativeTimeHindi(dateString: string | null): string {
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return `${diffInHours} ${diffInHours === 1 ? 'घंटा' : 'घंटे'} पहले`;
+    return `${diffInHours} ${diffInHours === 1 ? "घंटा" : "घंटे"} पहले`;
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays === 1) {
     return "कल";
   }
-  
+
   if (diffInDays < 7) {
     return `${diffInDays} दिन पहले`;
   }

@@ -5,12 +5,21 @@ export function useNavigationData() {
   return useQuery({
     queryKey: ["navigation-data"],
     queryFn: async () => {
-      const [districtsRes, categoriesRes, relationsRes, subDistrictsRes] = await Promise.all([
-        supabase.from("districts").select("*").eq("status", true).order("sort_order", { ascending: true }),
-        supabase.from("categories").select("*").eq("status", true).order("sort_order", { ascending: true }),
-        supabase.from("district_categories").select("*"),
-        supabase.from("sub_districts").select("*").eq("status", true),
-      ]);
+      const [districtsRes, categoriesRes, relationsRes, subDistrictsRes] =
+        await Promise.all([
+          supabase
+            .from("districts")
+            .select("*")
+            .eq("status", true)
+            .order("sort_order", { ascending: true }),
+          supabase
+            .from("categories")
+            .select("*")
+            .eq("status", true)
+            .order("sort_order", { ascending: true }),
+          supabase.from("district_categories").select("*"),
+          supabase.from("sub_districts").select("*").eq("status", true),
+        ]);
 
       if (districtsRes.error) throw districtsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;

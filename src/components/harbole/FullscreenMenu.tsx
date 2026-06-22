@@ -4,7 +4,13 @@ import { Logo } from "./Logo";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigationData } from "@/hooks/useNavigationData";
 
-export function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function FullscreenMenu({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const [query, setQuery] = useState("");
   const { data } = useNavigationData();
   const navigate = useNavigate({ from: "/" });
@@ -27,9 +33,9 @@ export function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () =
   const q = query.trim().toLowerCase();
   const suggestions = useMemo(() => {
     if (!q || !data?.categories) return [];
-    return data.categories.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.slug.includes(q)
-    ).slice(0, 6);
+    return data.categories
+      .filter((c) => c.name.toLowerCase().includes(q) || c.slug.includes(q))
+      .slice(0, 6);
   }, [q, data?.categories]);
 
   if (!open) return null;
@@ -63,7 +69,10 @@ export function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () =
               className="flex-1 bg-transparent outline-none font-body-hindi text-base placeholder:text-paper/35"
             />
             {query && (
-              <button onClick={() => setQuery("")} className="text-[10px] text-paper/50 uppercase tracking-widest">
+              <button
+                onClick={() => setQuery("")}
+                className="text-[10px] text-paper/50 uppercase tracking-widest"
+              >
                 Clear
               </button>
             )}
@@ -71,15 +80,20 @@ export function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () =
           {q && (
             <div className="mt-2 rounded-2xl bg-[oklch(0.18_0.04_250)] ring-1 ring-white/10 overflow-hidden shadow-elevated animate-reveal">
               {suggestions.length === 0 ? (
-                <div className="px-4 py-5 text-sm text-paper/50 font-body-hindi">कोई श्रेणी नहीं मिली</div>
+                <div className="px-4 py-5 text-sm text-paper/50 font-body-hindi">
+                  कोई श्रेणी नहीं मिली
+                </div>
               ) : (
                 <ul>
                   {suggestions.map((s) => (
                     <li key={s.slug}>
                       <button
                         onClick={() => {
-                           navigate({ to: "/", search: { category: s.slug, district: undefined } });
-                           onClose();
+                          navigate({
+                            to: "/",
+                            search: { category: s.slug, district: undefined },
+                          });
+                          onClose();
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition border-b border-white/5 last:border-0 group text-left"
                       >
@@ -87,7 +101,9 @@ export function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () =
                           {s.name[0]}
                         </span>
                         <span className="flex-1 min-w-0">
-                          <span className="block font-hindi text-base text-paper leading-tight">{s.name}</span>
+                          <span className="block font-hindi text-base text-paper leading-tight">
+                            {s.name}
+                          </span>
                           <span className="block text-[10px] uppercase tracking-widest text-paper/45 mt-0.5">
                             Category
                           </span>
@@ -102,28 +118,48 @@ export function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () =
           )}
         </div>
 
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold mb-4">Sections</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold mb-4">
+          Sections
+        </p>
         <nav className="space-y-1 mb-12">
-          <Link to="/" search={{ district: undefined, category: undefined }} onClick={onClose} className="block py-3 border-b border-white/5 group">
-            <div className="font-hindi text-3xl font-semibold group-hover:text-gold transition-colors">मुख्य पृष्ठ</div>
-            <div className="text-[10px] uppercase tracking-widest text-paper/40">Home</div>
+          <Link
+            to="/"
+            search={{ district: undefined, category: undefined }}
+            onClick={onClose}
+            className="block py-3 border-b border-white/5 group"
+          >
+            <div className="font-hindi text-3xl font-semibold group-hover:text-gold transition-colors">
+              मुख्य पृष्ठ
+            </div>
+            <div className="text-[10px] uppercase tracking-widest text-paper/40">
+              Home
+            </div>
           </Link>
           {data?.categories?.map((c) => (
             <button
               key={c.slug}
               onClick={() => {
-                  navigate({ to: "/", search: { category: c.slug, district: undefined } });
-                  onClose();
+                navigate({
+                  to: "/",
+                  search: { category: c.slug, district: undefined },
+                });
+                onClose();
               }}
               className="w-full text-left block py-3 border-b border-white/5 group"
             >
-              <div className="font-hindi text-3xl font-semibold group-hover:text-gold transition-colors">{c.name}</div>
-              <div className="text-[10px] uppercase tracking-widest text-paper/40">{c.slug}</div>
+              <div className="font-hindi text-3xl font-semibold group-hover:text-gold transition-colors">
+                {c.name}
+              </div>
+              <div className="text-[10px] uppercase tracking-widest text-paper/40">
+                {c.slug}
+              </div>
             </button>
           ))}
         </nav>
 
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold mb-4">Editorial</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold mb-4">
+          Editorial
+        </p>
         <div className="space-y-3 text-sm text-paper/70 mb-12">
           <div>हमारी पत्रकारिता का सिद्धांत</div>
           <div>The Amit Tripathi Show</div>

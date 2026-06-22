@@ -14,10 +14,14 @@ export function SectionHeader({
   return (
     <div className="px-4 mb-5 flex items-end justify-between">
       <div>
-        <div className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-1 ${invert ? "text-gold" : "text-orange"}`}>
+        <div
+          className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-1 ${invert ? "text-gold" : "text-orange"}`}
+        >
           {english}
         </div>
-        <h2 className={`font-hindi text-2xl font-semibold leading-none ${invert ? "text-paper" : "text-navy"}`}>
+        <h2
+          className={`font-hindi text-2xl font-semibold leading-none ${invert ? "text-paper" : "text-navy"}`}
+        >
           {hindi}
         </h2>
       </div>

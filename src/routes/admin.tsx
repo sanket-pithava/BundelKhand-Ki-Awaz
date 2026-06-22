@@ -1,4 +1,10 @@
-import { Link, Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAdminAuth } from "@/lib/admin/use-admin-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,13 +42,26 @@ const NAV = [
 function AdminLayout() {
   const loc = useLocation();
   const nav = useNavigate();
-  const { user, isAdmin, loading } = useAdminAuth();
+  const { user, isAdmin, isReporter, loading } = useAdminAuth();
   const isLogin = loc.pathname === "/admin/login";
 
   useEffect(() => {
     if (loading || isLogin) return;
     if (!user) nav({ to: "/admin/login", replace: true });
   }, [loading, isLogin, user, nav]);
+
+  useEffect(() => {
+    if (loading || isLogin || !user) return;
+    // Route protection
+    if (
+      isReporter &&
+      loc.pathname !== "/admin" &&
+      loc.pathname !== "/admin/reporter" &&
+      loc.pathname !== "/admin/profile"
+    ) {
+      nav({ to: "/admin", replace: true });
+    }
+  }, [loading, isLogin, user, isReporter, loc.pathname, nav]);
 
   if (isLogin) {
     return (
@@ -54,18 +73,22 @@ function AdminLayout() {
   }
 
   if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-paper text-navy/60">लोड हो रहा है…</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-paper text-navy/60">
+        लोड हो रहा है…
+      </div>
+    );
   }
 
   if (!user) return null;
 
-  if (!isAdmin) {
+  if (!isAdmin && !isReporter) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper px-6 text-center">
         <h1 className="text-2xl font-bold text-navy">Access denied</h1>
         <p className="max-w-md text-sm text-navy/60">
-          Your account ({user.email}) is signed in but does not have the admin role. Ask an existing
-          admin to promote you.
+          Your account ({user.email}) is signed in but does not have the admin
+          role. Ask an existing admin to promote you.
         </p>
         <button
           onClick={async () => {
@@ -84,12 +107,27 @@ function AdminLayout() {
     <div className="flex min-h-screen bg-paper text-navy">
       <aside className="hidden w-64 shrink-0 border-r border-navy/10 bg-white p-4 md:block">
         <div className="mb-6 px-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-navy/40">Harbole</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-navy/40">
+            Harbole
+          </div>
           <div className="text-lg font-bold">Admin Console</div>
         </div>
         <nav className="space-y-1">
-          {NAV.map((n) => {
-            const active = n.exact ? loc.pathname === n.to : loc.pathname.startsWith(n.to);
+          {(isReporter
+            ? [
+                {
+                  to: "/admin",
+                  label: "Dashboard",
+                  icon: LayoutDashboard,
+                  exact: true,
+                },
+                { to: "/admin/profile", label: "Profile", icon: UsersIcon },
+              ]
+            : NAV
+          ).map((n) => {
+            const active = n.exact
+              ? loc.pathname === n.to
+              : loc.pathname.startsWith(n.to);
             const Icon = n.icon;
             return (
               <Link
@@ -121,7 +159,9 @@ function AdminLayout() {
 
       {/* Mobile top bar */}
       <div className="md:hidden fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-navy/10 bg-white px-4 py-3">
-        <Link to="/admin" className="font-bold">Harbole Admin</Link>
+        <Link to="/admin" className="font-bold">
+          Harbole Admin
+        </Link>
         <button
           onClick={async () => {
             await supabase.auth.signOut();
@@ -137,8 +177,21 @@ function AdminLayout() {
         {/* Mobile nav scroll */}
         <div className="md:hidden -mx-4 mb-4 overflow-x-auto px-4">
           <div className="flex gap-2 pb-2">
-            {NAV.map((n) => {
-              const active = n.exact ? loc.pathname === n.to : loc.pathname.startsWith(n.to);
+            {(isReporter
+              ? [
+                  {
+                    to: "/admin",
+                    label: "Dashboard",
+                    icon: LayoutDashboard,
+                    exact: true,
+                  },
+                  { to: "/admin/profile", label: "Profile", icon: UsersIcon },
+                ]
+              : NAV
+            ).map((n) => {
+              const active = n.exact
+                ? loc.pathname === n.to
+                : loc.pathname.startsWith(n.to);
               return (
                 <Link
                   key={n.to}

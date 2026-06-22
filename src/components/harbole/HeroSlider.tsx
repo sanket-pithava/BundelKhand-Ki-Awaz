@@ -46,14 +46,21 @@ export function HeroSlider({ slides }: { slides: DynamicArticle[] }) {
               className={`absolute inset-0 transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               aria-hidden={idx !== i}
             >
-              <img src={s.image} alt={s.title} className="w-full h-full object-cover" loading={idx === 0 ? "eager" : "lazy"} />
+              <img
+                src={s.image}
+                alt={s.title}
+                className="w-full h-full object-cover"
+                loading={idx === 0 ? "eager" : "lazy"}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent" />
               <div className="absolute top-3 left-3 flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-orange text-paper text-[9px] font-bold uppercase tracking-widest rounded">
                   <span className="inline-block size-1.5 bg-paper rounded-full mr-1.5 animate-pulse" />
                   Breaking
                 </span>
-                <span className="text-paper/85 text-[10px] font-body-hindi">{s.district?.name} • {s.time}</span>
+                <span className="text-paper/85 text-[10px] font-body-hindi">
+                  {s.district?.name} • {s.time}
+                </span>
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-4 pb-7 md:p-8 md:pb-12 md:max-w-2xl">
                 <div className="text-gold text-[9px] md:text-xs font-bold uppercase tracking-[0.3em] mb-1.5 md:mb-3">
@@ -63,7 +70,9 @@ export function HeroSlider({ slides }: { slides: DynamicArticle[] }) {
                   {s.title}
                 </h1>
                 {s.excerpt && (
-                  <p className="hidden md:block text-paper/75 font-body-hindi text-sm md:text-lg text-pretty line-clamp-2">{s.excerpt}</p>
+                  <p className="hidden md:block text-paper/75 font-body-hindi text-sm md:text-lg text-pretty line-clamp-2">
+                    {s.excerpt}
+                  </p>
                 )}
               </div>
             </Link>
