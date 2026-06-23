@@ -8,7 +8,7 @@ export function useArticles(
 ) {
   return useQuery({
     queryKey: ["articles", districtSlug, subDistrictSlug, categorySlug],
-    queryFn: async () => {
+    queryFn: async (): Promise<any[]> => {
       // Base select logic depending on what we are filtering
       let selectStr = "*";
 
