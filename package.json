@@ -13,7 +13,6 @@
         "format": "prettier --write ."
     },
     "dependencies": {
-        "@cloudflare/vite-plugin": "^1.40.1",
         "@fontsource/inter": "^5.2.8",
         "@fontsource/mukta-vaani": "^5.2.8",
         "@fontsource/tiro-devanagari-hindi": "^5.2.7",
