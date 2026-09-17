@@ -20,7 +20,7 @@ export function BottomNav() {
           return (
             <Link
               key={label}
-              to={to}
+              to={to as any}
               className="flex-1 flex flex-col items-center gap-1 py-1.5 group"
             >
               <Icon

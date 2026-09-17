@@ -60,6 +60,7 @@ function HomePage() {
   const search = useSearch({ from: "/" });
   const { data: articles, isLoading } = useArticles(
     search.district,
+    undefined,
     search.category,
   );
   const { data: homeData, isLoading: homeLoading } = useHomepageData();

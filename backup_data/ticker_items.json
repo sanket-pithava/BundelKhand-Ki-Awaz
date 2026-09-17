@@ -1,0 +1,30 @@
+[
+  {
+    "id": "92d1e94c-d39b-4d06-854b-240d4af62627",
+    "created_at": "2026-06-08T11:36:39.921137+00:00",
+    "text": "Test",
+    "is_active": true,
+    "sort_order": 0
+  },
+  {
+    "id": "67ed733e-3387-491f-a03e-565dbe6942cf",
+    "created_at": "2026-06-08T11:36:47.898912+00:00",
+    "text": "Test 1",
+    "is_active": true,
+    "sort_order": 1
+  },
+  {
+    "id": "81d39f74-5718-4635-9323-fb642eb454eb",
+    "created_at": "2026-06-08T11:36:56.718812+00:00",
+    "text": "test 2",
+    "is_active": true,
+    "sort_order": 2
+  },
+  {
+    "id": "d33e42cc-b135-422f-b156-1e30eae35ad7",
+    "created_at": "2026-06-08T11:37:06.906037+00:00",
+    "text": "test3",
+    "is_active": true,
+    "sort_order": 3
+  }
+]

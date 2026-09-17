@@ -91,7 +91,7 @@ export function FullscreenMenu({
                         onClick={() => {
                           navigate({
                             to: "/",
-                            search: { category: s.slug, district: undefined },
+                            search: (prev: any) => ({ ...prev, category: s.slug }),
                           });
                           onClose();
                         }}
@@ -141,7 +141,7 @@ export function FullscreenMenu({
               onClick={() => {
                 navigate({
                   to: "/",
-                  search: { category: c.slug, district: undefined },
+                  search: (prev: any) => ({ ...prev, category: c.slug }),
                 });
                 onClose();
               }}

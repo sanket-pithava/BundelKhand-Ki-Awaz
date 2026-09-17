@@ -1,0 +1,82 @@
+[
+  {
+    "id": "82219669-ae7c-4946-adc1-ced44aacccd8",
+    "title_hindi": "राष्ट्रीय",
+    "title_english": "National",
+    "category_id": "12762d09-00bc-45c8-980e-08e17a628c4d",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-11T10:25:44.318749+00:00"
+  },
+  {
+    "id": "f30c9e38-74d3-425a-93f0-6f043c9c2792",
+    "title_hindi": "अंतरराष्ट्रीय",
+    "title_english": "International",
+    "category_id": "bf406672-dc85-45b6-a202-15f74f9f517f",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-11T10:27:14.491224+00:00"
+  },
+  {
+    "id": "3d0a4981-bda0-4bf5-9fee-6c88ed665842",
+    "title_hindi": "खेल",
+    "title_english": "Sports",
+    "category_id": "97fee040-a28b-4d42-9908-1123fe3ab7ed",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-11T10:27:44.96739+00:00"
+  },
+  {
+    "id": "e5991506-583a-4b70-9547-ff02ac1a4e30",
+    "title_hindi": "लेख",
+    "title_english": "Article\"s",
+    "category_id": "fa0c5e75-8ced-4201-81e0-e0d86387202c",
+    "article_limit": 50,
+    "sort_order": 4,
+    "status": true,
+    "created_at": "2026-06-10T18:26:09.7984+00:00"
+  },
+  {
+    "id": "0ee637e5-d7b1-4586-bb33-4b3aa62ecebd",
+    "title_hindi": "राजनीति",
+    "title_english": "Politics",
+    "category_id": "f06a68f1-34e0-410c-9f17-19ee73cd007a",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-10T08:10:57.899046+00:00"
+  },
+  {
+    "id": "d6f641ba-6c98-42f6-a65a-cb89fc9fb098",
+    "title_hindi": "धर्म",
+    "title_english": "Religion ",
+    "category_id": "779183e3-ad09-4624-b5ca-9908dc9d4e92",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-13T06:37:00.701874+00:00"
+  },
+  {
+    "id": "2779c8d6-e6ef-4b1e-8198-bca5f55b1ac4",
+    "title_hindi": "मौसम",
+    "title_english": "Weather",
+    "category_id": "4eb93519-c14c-41e8-b415-2db926352eff",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-18T08:41:52.188217+00:00"
+  },
+  {
+    "id": "38769858-b225-4902-950b-dfaf769209c8",
+    "title_hindi": "आज का दिवस",
+    "title_english": "Today's Day",
+    "category_id": "a6e73a49-bb24-4c86-8b1b-50ac7e4568d4",
+    "article_limit": 50,
+    "sort_order": 0,
+    "status": true,
+    "created_at": "2026-06-19T19:32:59.410894+00:00"
+  }
+]

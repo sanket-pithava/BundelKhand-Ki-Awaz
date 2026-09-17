@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-09-16T05:20:14.623Z",
+  "tables": [
+    {
+      "table": "articles",
+      "count": 1564
+    },
+    {
+      "table": "categories",
+      "count": 12
+    },
+    {
+      "table": "districts",
+      "count": 14
+    },
+    {
+      "table": "sub_districts",
+      "count": 80
+    },
+    {
+      "table": "ads",
+      "count": 1
+    },
+    {
+      "table": "reels",
+      "count": 8
+    },
+    {
+      "table": "show_episodes",
+      "count": 1
+    },
+    {
+      "table": "shakhsiyat",
+      "count": 5
+    },
+    {
+      "table": "ticker_items",
+      "count": 4
+    },
+    {
+      "table": "impact_items",
+      "count": 0
+    },
+    {
+      "table": "homepage_sections",
+      "count": 8
+    },
+    {
+      "table": "homepage_hero",
+      "count": 7
+    },
+    {
+      "table": "homepage_breaking",
+      "count": 6
+    },
+    {
+      "table": "homepage_top10",
+      "count": 14
+    },
+    {
+      "table": "reporters",
+      "count": 4
+    },
+    {
+      "table": "profiles",
+      "count": 11
+    },
+    {
+      "table": "user_roles",
+      "count": 15
+    },
+    {
+      "table": "district_categories",
+      "count": 0
+    }
+  ]
+}

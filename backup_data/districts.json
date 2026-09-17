@@ -1,0 +1,128 @@
+[
+  {
+    "id": "834c7a27-a7cd-4ed5-95f5-45d957821536",
+    "created_at": "2026-06-10T13:30:40.260182+00:00",
+    "name": "झांसी",
+    "sort_order": 0,
+    "slug": "#झांसी",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102249941-suwz1s.jpeg",
+    "status": true
+  },
+  {
+    "id": "49b1f203-de40-4450-a7b2-fc5b31aba943",
+    "created_at": "2026-06-10T13:51:39.107665+00:00",
+    "name": "ललितपुर",
+    "sort_order": 0,
+    "slug": "#ललितपुर",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102335745-xs22mv.jpeg",
+    "status": true
+  },
+  {
+    "id": "ee2dbe6c-6361-4327-a0a0-bb2c05d0579a",
+    "created_at": "2026-06-10T13:51:15.118196+00:00",
+    "name": "सागर",
+    "sort_order": 0,
+    "slug": "#सागर",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102584268-uvnkpx.jpeg",
+    "status": true
+  },
+  {
+    "id": "2132093b-0966-44ba-8a62-a5c0490295b4",
+    "created_at": "2026-06-10T13:52:33.965507+00:00",
+    "name": "निवाड़ी",
+    "sort_order": 0,
+    "slug": "#निवाड़ी",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102636310-hzli17.jpeg",
+    "status": true
+  },
+  {
+    "id": "d186def7-b543-4fac-bf0f-85c179dd00c1",
+    "created_at": "2026-06-10T13:53:14.656241+00:00",
+    "name": "दतिया",
+    "sort_order": 0,
+    "slug": "#दतिया",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102657545-a7w2tt.jpeg",
+    "status": true
+  },
+  {
+    "id": "3fffc4be-1c73-493d-96a0-52fd3f54e06d",
+    "created_at": "2026-06-10T13:53:53.027704+00:00",
+    "name": "जालौन",
+    "sort_order": 0,
+    "slug": "#जालौन",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102680462-jcyvqa.jpeg",
+    "status": true
+  },
+  {
+    "id": "289e8e44-de2d-4832-a311-4f45819098fc",
+    "created_at": "2026-06-10T13:55:00.876877+00:00",
+    "name": "हमीरपुर",
+    "sort_order": 0,
+    "slug": "#हमीरपुर",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102707884-wqpwuk.jpeg",
+    "status": true
+  },
+  {
+    "id": "1a7666fb-a3e3-48b6-b5be-b2e77052910f",
+    "created_at": "2026-06-10T13:55:44.683802+00:00",
+    "name": "महोबा",
+    "sort_order": 0,
+    "slug": "#महोबा",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102745044-ntorgj.jpeg",
+    "status": true
+  },
+  {
+    "id": "afa98b3f-a910-4a07-9db3-7c79770675c5",
+    "created_at": "2026-06-10T13:56:38.903793+00:00",
+    "name": "बाँदा",
+    "sort_order": 0,
+    "slug": "#बाँदा",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781102789987-pjm3eq.jpeg",
+    "status": true
+  },
+  {
+    "id": "f8c246df-b1cc-4175-88f0-2cd9ba99935c",
+    "created_at": "2026-06-10T13:57:29.369342+00:00",
+    "name": "चित्रकूट",
+    "sort_order": 0,
+    "slug": "#चित्रकूट",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781105717590-qgbad6.jpeg",
+    "status": true
+  },
+  {
+    "id": "93508424-c773-45d0-83c7-73f1b8297c53",
+    "created_at": "2026-06-10T13:58:27.470693+00:00",
+    "name": "छतरपुर",
+    "sort_order": 0,
+    "slug": "#छतरपुर",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781105735704-tx9u50.jpeg",
+    "status": true
+  },
+  {
+    "id": "03e0f4b8-ffb0-4a62-ae43-b30dc111cf3e",
+    "created_at": "2026-06-10T13:59:26.171469+00:00",
+    "name": "टीकमगढ़",
+    "sort_order": 0,
+    "slug": "#टीकमगढ़",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781105779647-6fi6wt.jpeg",
+    "status": true
+  },
+  {
+    "id": "52e02576-54ee-4b53-b6ee-c61dca116794",
+    "created_at": "2026-06-10T14:00:25.389554+00:00",
+    "name": "दमोह",
+    "sort_order": 0,
+    "slug": "#दमोह",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781105806411-3m4ndz.jpeg",
+    "status": true
+  },
+  {
+    "id": "63d6b102-84f6-4865-8949-764a9b8fa2b2",
+    "created_at": "2026-06-10T14:01:02.563296+00:00",
+    "name": "पन्ना",
+    "sort_order": 0,
+    "slug": "#पन्ना",
+    "image_url": "https://iawattknncbxkqzrfzte.supabase.co/storage/v1/object/public/media/districts/1781105824442-rxw5ws.jpeg",
+    "status": true
+  }
+]

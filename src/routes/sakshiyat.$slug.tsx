@@ -2,29 +2,21 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Share2, Type, Bookmark, Quote } from "lucide-react";
 import { Header } from "@/components/harbole/Header";
 import { BottomNav } from "@/components/harbole/BottomNav";
-import { supabase } from "@/integrations/supabase/client";
+import { getSakshiyatBySlugFn } from "@/lib/queries";
 import { IMAGES } from "@/lib/harbole-data";
 
 export const Route = createFileRoute("/sakshiyat/$slug")({
   loader: async ({ params }) => {
-    const { data, error } = await supabase
-      .from("shakhsiyat")
-      .select("*")
-      .or(`slug.eq.${params.slug},id.eq.${params.slug}`)
-      .eq("status", true)
-      .maybeSingle();
+    let result = null;
+    try {
+      result = await getSakshiyatBySlugFn({ data: params.slug });
+    } catch (e) {
+      console.error("Error loading shakhsiyat from Mongo:", e);
+    }
 
-    if (error || !data) throw notFound();
+    if (!result?.profile) throw notFound();
 
-    // Fetch related shakhsiyat
-    const { data: relatedData } = await supabase
-      .from("shakhsiyat")
-      .select("name, slug, image, designation")
-      .eq("status", true)
-      .neq("id", data.id)
-      .limit(3);
-
-    return { profile: data, otherProfiles: relatedData || [] };
+    return { profile: result.profile, otherProfiles: result.otherProfiles || [] };
   },
   head: ({ loaderData }) => ({
     meta: loaderData

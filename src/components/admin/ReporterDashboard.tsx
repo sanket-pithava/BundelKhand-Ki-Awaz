@@ -7,6 +7,7 @@ import {
   XCircle,
   LayoutDashboard,
   FileText,
+  Edit2,
 } from "lucide-react";
 import { useAdminAuth } from "@/lib/admin/use-admin-auth";
 import { EditDrawer } from "@/routes/admin.index"; // Reusing the powerful EditDrawer
@@ -279,17 +280,27 @@ function ReporterArticles({ userId }: { userId: string }) {
                     </div>
                   </td>
                   <td className="px-3 py-3 text-right align-top">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                        r.approval_status === "Approved"
-                          ? "bg-green-500/10 text-green-600"
-                          : r.approval_status === "Rejected"
-                            ? "bg-red-500/10 text-red-600"
-                            : "bg-orange/10 text-orange"
-                      }`}
-                    >
-                      {r.approval_status || "Pending"}
-                    </span>
+                    <div className="flex flex-col items-end gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                          r.approval_status === "Approved"
+                            ? "bg-green-500/10 text-green-600"
+                            : r.approval_status === "Rejected"
+                              ? "bg-red-500/10 text-red-600"
+                              : "bg-orange/10 text-orange"
+                        }`}
+                      >
+                        {r.approval_status || "Pending"}
+                      </span>
+                      {r.approval_status !== "Approved" && (
+                        <button
+                          onClick={() => setEditing(r)}
+                          className="flex items-center gap-1 rounded bg-navy/5 px-2 py-1 text-[10px] font-bold text-navy hover:bg-navy/10 uppercase tracking-wider"
+                        >
+                          <Edit2 className="size-3" /> Edit
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

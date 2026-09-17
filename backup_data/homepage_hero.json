@@ -1,0 +1,44 @@
+[
+  {
+    "id": "11e1270a-3303-4c5a-aa59-2fcf1173bb94",
+    "article_id": "e98b1a09-03a8-42f2-80d7-2d6987c35e5d",
+    "sort_order": -62,
+    "created_at": "2026-09-12T05:56:56.907948+00:00"
+  },
+  {
+    "id": "55e7fdd1-44ea-4dc2-8e8d-8d7f32f5b6c5",
+    "article_id": "ad9ba79c-6900-4b21-8cd3-48d45eb6da87",
+    "sort_order": -63,
+    "created_at": "2026-09-12T06:05:15.761999+00:00"
+  },
+  {
+    "id": "6eefc30f-a456-47a2-9e53-d3f031a4c70b",
+    "article_id": "1f4291c4-6881-48cf-a3ae-f179ff93f4f5",
+    "sort_order": -64,
+    "created_at": "2026-09-12T06:05:20.555907+00:00"
+  },
+  {
+    "id": "ece94cb1-edd5-4dd2-8d2b-38b5baa2a311",
+    "article_id": "79442aa0-c884-46f1-892c-4c61f4bdafc0",
+    "sort_order": -65,
+    "created_at": "2026-09-12T06:10:54.7784+00:00"
+  },
+  {
+    "id": "0f6d97d8-5d63-444c-a1f9-f8a8f59da1c9",
+    "article_id": "eee942b9-1a0d-4fd5-a2c3-d2c4554c1936",
+    "sort_order": -66,
+    "created_at": "2026-09-12T06:16:01.816395+00:00"
+  },
+  {
+    "id": "896991c3-f73f-44c2-9795-dcbfe743af0d",
+    "article_id": "c1d4f002-2d9d-4c0a-87d7-d2fe90d0981a",
+    "sort_order": -67,
+    "created_at": "2026-09-12T11:09:40.747972+00:00"
+  },
+  {
+    "id": "3407301d-0dc6-46fe-a4e8-d0062dcc971b",
+    "article_id": "5dd96780-439b-4956-a9d0-3e887cf12a68",
+    "sort_order": -68,
+    "created_at": "2026-09-16T05:18:14.348202+00:00"
+  }
+]

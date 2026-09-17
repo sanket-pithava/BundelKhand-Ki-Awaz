@@ -39,7 +39,7 @@ export function DistrictGrid() {
 
   function handleDistrictClick(slug: string) {
     navigate({
-      search: (prev: any) => ({ ...prev, district: slug, category: undefined }),
+      search: (prev: any) => ({ ...prev, district: slug }),
     });
   }
 

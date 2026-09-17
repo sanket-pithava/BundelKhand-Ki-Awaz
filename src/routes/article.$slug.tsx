@@ -4,82 +4,36 @@ import { Header } from "@/components/harbole/Header";
 import { BottomNav } from "@/components/harbole/BottomNav";
 import { ALL_ARTICLES, TOP10, IMAGES } from "@/lib/harbole-data";
 import { AdBanner } from "@/components/harbole/AdBanner";
-import { supabase } from "@/integrations/supabase/client";
+import { getArticleBySlugFn } from "@/lib/queries";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/article/$slug")({
-  loader: async ({ params }) => {
-    let article = null;
-    let relatedArticles: any[] = [];
-    let prevArticle = null;
-    let nextArticle = null;
-
-    const { data, error } = await supabase
-      .from("articles")
-      .select("*, category:categories(name), reporter:reporters(*)")
-      .eq("slug", params.slug)
-      .maybeSingle();
-
-    if (!error && data) {
-      // @ts-ignore
-      const categoryName =
-        data.category?.name || (data as any).category_slug || "news";
-      article = {
-        title: data.title,
-        category: categoryName,
-        slug: data.slug,
-        time: (data as any).time_label || "Recently",
-        image: data.image_url || "",
-        mobileImage: (data as any).mobile_image_url || "",
-        dek: data.dek || data.excerpt || "",
-        content: data.body || (data as any).content || "",
-        author: (data as any).author_name || "हरबोले डेस्क",
-        reporterProfile: Array.isArray(data.reporter)
-          ? data.reporter[0]
-          : data.reporter,
-      } as any;
-
-      if (data.category_id) {
-        const [relatedRes, prevRes, nextRes] = await Promise.all([
-          supabase
-            .from("articles")
-            .select("title, slug, image_url, category:categories(name)")
-            .eq("category_id", data.category_id)
-            .neq("id", data.id)
-            .limit(3),
-          supabase
-            .from("articles")
-            .select("title, slug")
-            .lt("created_at", data.created_at)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle(),
-          supabase
-            .from("articles")
-            .select("title, slug")
-            .gt("created_at", data.created_at)
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .maybeSingle(),
-        ]);
-
-        relatedArticles = (relatedRes.data || []).map((a: any) => ({
-          title: a.title,
-          slug: a.slug,
-          image: a.image_url,
-          category: Array.isArray(a.category)
-            ? a.category[0]?.name
-            : a.category?.name || "News",
-        }));
-        prevArticle = prevRes.data;
-        nextArticle = nextRes.data;
-      }
-    } else {
-      article = ALL_ARTICLES[params.slug];
+  loader: async ({ params }): Promise<{
+    article: any;
+    relatedArticles: any[];
+    prevArticle: any;
+    nextArticle: any;
+  }> => {
+    let result: Awaited<ReturnType<typeof getArticleBySlugFn>> = null;
+    try {
+      result = await getArticleBySlugFn({ data: params.slug });
+    } catch (e) {
+      console.error("Error loading article from Mongo:", e);
     }
 
-    if (!article) throw notFound();
-    return { article, relatedArticles, prevArticle, nextArticle };
+    if (result?.article) {
+      return result;
+    }
+
+    const fallback = ALL_ARTICLES[params.slug];
+    if (!fallback) throw notFound();
+
+    return {
+      article: fallback,
+      relatedArticles: [],
+      prevArticle: null,
+      nextArticle: null,
+    };
   },
   head: ({ loaderData }) => ({
     meta: loaderData

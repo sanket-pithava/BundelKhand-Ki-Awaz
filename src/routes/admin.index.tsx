@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadMedia } from "@/lib/admin/upload";
+import { adminGetResourceFn, adminSaveResourceFn, adminDeleteResourceFn } from "@/lib/admin-queries";
 import { toast } from "sonner";
 import { Plus, Edit2, Trash2, Save, X, Upload } from "lucide-react";
 import { PlacementManager } from "@/components/admin/PlacementManager";
@@ -52,7 +53,7 @@ const RESOURCES: Resource[] = [
     table: "articles",
     orderBy: "created_at",
     ascending: false,
-    defaults: { status: "published", is_impact: false, sort_order: 0 },
+    defaults: { status: "draft", approval_status: "Pending", is_impact: false, sort_order: 0 },
     fields: [
       { key: "title", label: "Title (Hindi)", type: "text" },
       {
@@ -89,12 +90,6 @@ const RESOURCES: Resource[] = [
       { key: "video_url", label: "Video URL (optional)", type: "text" },
       { key: "is_trending", label: "Trending Article", type: "bool" },
       { key: "is_impact", label: "Add to Impact Series", type: "bool" },
-      {
-        key: "status",
-        label: "Status",
-        type: "select",
-        options: ["published", "draft", "archived"],
-      },
       {
         key: "publish_at",
         label: "Publish Date (leave blank for now)",
@@ -310,6 +305,7 @@ const RESOURCES: Resource[] = [
       sort_order: 0,
       eyebrow: "Sponsored",
       cta: "Learn More",
+      website_url: "",
     },
     fields: [
       { key: "title", label: "Title", type: "text" },
@@ -317,6 +313,12 @@ const RESOURCES: Resource[] = [
       { key: "eyebrow", label: "Eyebrow", type: "text" },
       { key: "cta", label: "CTA Label", type: "text" },
       { key: "sponsor", label: "Sponsor", type: "text" },
+      {
+        key: "website_url",
+        label: "Target Website / Link URL (Optional - e.g. https://example.com)",
+        type: "text",
+        placeholder: "https://example.com",
+      },
       {
         key: "variant",
         label: "Variant",
@@ -502,12 +504,19 @@ function ResourceManager({ resource }: { resource: Resource }) {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await (supabase as any)
-      .from(resource.table)
-      .select(resource.selectQuery || "*")
-      .order(resource.orderBy, { ascending: resource.ascending ?? false });
-    if (error) toast.error(error.message);
-    setRows((data ?? []) as Row[]);
+    try {
+      const data = await adminGetResourceFn({
+        data: {
+          table: resource.table,
+          orderBy: resource.orderBy,
+          ascending: resource.ascending ?? false,
+        },
+      });
+      setRows((data ?? []) as Row[]);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to load data");
+    }
     setLoading(false);
   }
 
@@ -517,13 +526,16 @@ function ResourceManager({ resource }: { resource: Resource }) {
 
   async function remove(id: string) {
     if (!confirm("Delete this item?")) return;
-    const { error } = await (supabase as any)
-      .from(resource.table)
-      .delete()
-      .eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Deleted");
-    load();
+    try {
+      await adminDeleteResourceFn({
+        data: { table: resource.table, id },
+      });
+      toast.success("Deleted");
+      load();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Delete failed");
+    }
   }
 
   function startCreate() {
@@ -759,6 +771,13 @@ export function EditDrawer({
         }
       }
 
+      // Explicitly inject hidden fields for articles
+      if (resource.table === "articles") {
+        if (form.reporter_id !== undefined) payload.reporter_id = form.reporter_id;
+        if (form.status !== undefined) payload.status = form.status;
+        if (form.approval_status !== undefined) payload.approval_status = form.approval_status;
+      }
+
       let savedId = form.id;
       if (resource.table === "articles") {
         const selectedCat = categories.find(
@@ -773,23 +792,15 @@ export function EditDrawer({
         }
       }
 
-      if (isNew) {
-        const { data, error } = await (supabase as any)
-          .from(resource.table)
-          .insert(payload)
-          .select("id")
-          .single();
-        if (error) throw error;
-        savedId = data.id;
-        toast.success("Created");
-      } else {
-        const { error } = await (supabase as any)
-          .from(resource.table)
-          .update(payload)
-          .eq("id", form.id);
-        if (error) throw error;
-        toast.success("Saved");
-      }
+      const saveRes = await adminSaveResourceFn({
+        data: {
+          table: resource.table,
+          id: isNew ? undefined : form.id,
+          data: payload,
+        },
+      });
+      savedId = saveRes.id;
+      toast.success(isNew ? "Created" : "Saved");
 
       if (
         resource.fields.some(
@@ -820,7 +831,8 @@ export function EditDrawer({
 
   async function handleUpload(field: string, file: File) {
     try {
-      const url = await uploadMedia(file, resource.table);
+      const folder = resource.table === "ads" ? "promotions" : resource.table;
+      const url = await uploadMedia(file, folder);
       set(field, url);
       toast.success("Uploaded");
     } catch (e) {

@@ -36,14 +36,8 @@ export function Header({
 
   const displayCategories = useMemo(() => {
     if (!data?.categories) return [];
-    if (!selectedDistrict) return data.categories;
-
-    const mappedCategoryIds = data.district_categories
-      .filter((dc) => dc.district_id === selectedDistrict.id)
-      .map((dc) => dc.category_id);
-
-    return data.categories.filter((c) => mappedCategoryIds.includes(c.id));
-  }, [data, selectedDistrict]);
+    return data.categories;
+  }, [data]);
 
   const getDistrictUrl = (slug: string) => {
     if (selectedDistrictSlug === slug) {
