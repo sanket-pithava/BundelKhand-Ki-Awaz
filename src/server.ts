@@ -1,3 +1,12 @@
+import { createRequire } from "node:module";
+if (typeof (globalThis as any).require === "undefined") {
+  try {
+    (globalThis as any).require = createRequire(import.meta.url);
+  } catch (e) {
+    // Ignore in non-Node environments
+  }
+}
+
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
