@@ -1,18 +1,9 @@
-import dns from 'dns';
 import { MongoClient, Db } from 'mongodb';
 
-// Ensure DNS resolution for MongoDB Atlas SRV connection strings
-if (typeof dns.setServers === 'function') {
-  try {
-    dns.setServers(['8.8.8.8', '8.8.4.4']);
-  } catch (e) {
-    // Ignore if not permitted
-  }
-}
+const DIRECT_URI =
+  'mongodb://laxsavani:laxsavani@ac-xjo4akj-shard-00-00.ykxfhke.mongodb.net:27017,ac-xjo4akj-shard-00-01.ykxfhke.mongodb.net:27017,ac-xjo4akj-shard-00-02.ykxfhke.mongodb.net:27017/bundelkhand_news?ssl=true&replicaSet=atlas-wfb2lh-shard-0&authSource=admin&retryWrites=true&w=majority';
 
-const uri =
-  process.env.MONGODB_URI ||
-  'mongodb+srv://laxsavani:laxsavani@cluster0.ykxfhke.mongodb.net/bundelkhand_news?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI || DIRECT_URI;
 const dbName = 'bundelkhand_news';
 
 declare global {
@@ -22,26 +13,36 @@ declare global {
 
 let clientPromise: Promise<MongoClient>;
 
-if (process.env.NODE_ENV === 'development') {
-  if (!global._mongoClientPromise) {
-    const client = new MongoClient(uri, {
-      maxPoolSize: 20,
-      minPoolSize: 2,
-    });
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
+function createClient(): Promise<MongoClient> {
   const client = new MongoClient(uri, {
     maxPoolSize: 20,
     minPoolSize: 2,
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 15000,
   });
-  clientPromise = client.connect();
+  return client.connect().catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+    throw err;
+  });
+}
+
+if (process.env.NODE_ENV === 'development') {
+  if (!global._mongoClientPromise) {
+    global._mongoClientPromise = createClient();
+  }
+  clientPromise = global._mongoClientPromise;
+} else {
+  clientPromise = createClient();
 }
 
 export async function getMongoDb(): Promise<Db> {
-  const client = await clientPromise;
-  return client.db(dbName);
+  try {
+    const client = await clientPromise;
+    return client.db(dbName);
+  } catch (err) {
+    console.error('❌ getMongoDb failed to connect:', err);
+    throw err;
+  }
 }
 
 export async function getMongoClient(): Promise<MongoClient> {
