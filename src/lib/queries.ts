@@ -210,16 +210,23 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       .map((s) => s.category_id)
       .filter(Boolean);
 
+    const targetCategoryNames = sectionCategoryIds
+      .map((id) => catMap.get(id)?.name)
+      .filter(Boolean);
+
     const categoryArticlesRaw =
       sectionCategoryIds.length > 0
         ? await db
             .collection("articles")
             .find({
               status: "published",
-              category_id: { $in: sectionCategoryIds },
+              $or: [
+                { category_id: { $in: sectionCategoryIds } },
+                { category: { $in: targetCategoryNames } },
+              ],
             })
             .sort({ publish_at: -1, created_at: -1 })
-            .limit(300)
+            .limit(500)
             .toArray()
         : [];
 
@@ -228,7 +235,12 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       const sectionArticles: DynamicArticle[] = [];
 
       for (const r of categoryArticlesRaw) {
-        if (r.category_id === sec.category_id) {
+        const matches =
+          r.category_id === sec.category_id ||
+          (catInfo?.name && r.category === catInfo.name) ||
+          (catInfo?.slug && r.category_slug === catInfo.slug);
+
+        if (matches) {
           sectionArticles.push(transformArticle(r));
           if (sectionArticles.length >= (sec.article_limit || 6)) break;
         }
@@ -239,7 +251,7 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
         title_hindi: (sec.title_hindi || "") as string,
         title_english: (sec.title_english || "") as string,
         category_id: (sec.category_id || "") as string,
-        category_slug: (catInfo?.slug || "") as string,
+        category_slug: (catInfo?.slug ? encodeURIComponent(catInfo.slug) : "") as string,
         article_limit: (sec.article_limit || 6) as number,
         articles: sectionArticles,
       };

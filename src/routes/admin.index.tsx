@@ -574,12 +574,22 @@ function ResourceManager({ resource }: { resource: Resource }) {
             {rows.map((r) => {
               const img = (r.image_url as string) || "";
               const title =
+                (r.title_hindi
+                  ? `${r.title_hindi}${r.title_english ? ` (${r.title_english})` : ""}`
+                  : null) ||
                 (r.title as string) ||
                 (r.article as any)?.title ||
                 (r.name as string) ||
                 (r.text as string) ||
+                (r.title_english as string) ||
                 "(untitled)";
-              const meta = [r.status, r.placement, r.variant, r.tag]
+              const meta = [
+                r.status !== undefined ? (r.status ? "Active" : "Inactive") : null,
+                r.placement,
+                r.variant,
+                r.tag,
+                r.article_limit ? `${r.article_limit} articles` : null,
+              ]
                 .filter(Boolean)
                 .join(" · ");
               return (
