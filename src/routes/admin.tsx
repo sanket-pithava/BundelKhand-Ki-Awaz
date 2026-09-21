@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAdminAuth } from "@/lib/admin/use-admin-auth";
-import { supabase } from "@/integrations/supabase/client";
+import { adminLogoutFn } from "@/lib/admin-auth";
 import {
   LayoutDashboard,
   Newspaper,
@@ -82,6 +82,15 @@ function AdminLayout() {
 
   if (!user) return null;
 
+  const handleSignOut = async () => {
+    try {
+      await adminLogoutFn();
+    } catch {}
+    localStorage.removeItem("admin_token");
+    window.dispatchEvent(new Event("admin-auth-changed"));
+    nav({ to: "/admin/login", replace: true });
+  };
+
   if (!isAdmin && !isReporter) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-paper px-6 text-center">
@@ -91,10 +100,7 @@ function AdminLayout() {
           role. Ask an existing admin to promote you.
         </p>
         <button
-          onClick={async () => {
-            await supabase.auth.signOut();
-            nav({ to: "/admin/login", replace: true });
-          }}
+          onClick={handleSignOut}
           className="rounded-md bg-navy px-4 py-2 text-sm text-paper"
         >
           Sign out
@@ -146,10 +152,7 @@ function AdminLayout() {
         <div className="mt-6 border-t border-navy/10 pt-4">
           <div className="px-2 text-xs text-navy/50">{user.email}</div>
           <button
-            onClick={async () => {
-              await supabase.auth.signOut();
-              nav({ to: "/admin/login", replace: true });
-            }}
+            onClick={handleSignOut}
             className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-navy/70 hover:bg-navy/5"
           >
             <LogOut className="size-4" /> Sign out
@@ -163,10 +166,7 @@ function AdminLayout() {
           Harbole Admin
         </Link>
         <button
-          onClick={async () => {
-            await supabase.auth.signOut();
-            nav({ to: "/admin/login", replace: true });
-          }}
+          onClick={handleSignOut}
           className="text-xs text-navy/60"
         >
           Sign out

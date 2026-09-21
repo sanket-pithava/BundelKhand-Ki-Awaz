@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Check, X, ExternalLink, RefreshCcw } from "lucide-react";
+import {
+  adminGetPendingNewsFn,
+  adminUpdateArticleApprovalFn,
+} from "@/lib/admin-queries";
 
 export function PendingNewsManager({ resourceKey }: { resourceKey?: string }) {
   const [rows, setRows] = useState<any[]>([]);
@@ -9,21 +12,14 @@ export function PendingNewsManager({ resourceKey }: { resourceKey?: string }) {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("articles")
-      .select(
-        `
-        *,
-        category:categories(name),
-        reporter:reporters(name)
-      `,
-      )
-      .eq("approval_status", "Pending")
-      .order("created_at", { ascending: false });
-
-    if (error) toast.error(error.message);
-    setRows(data || []);
-    setLoading(false);
+    try {
+      const data = await adminGetPendingNewsFn();
+      setRows(data || []);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to load pending articles");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -37,29 +33,15 @@ export function PendingNewsManager({ resourceKey }: { resourceKey?: string }) {
       return;
 
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const approvedBy = userData.user?.id;
-
-      const payload: any = {
-        approval_status: action,
-        approved_by: approvedBy,
-        approved_at: new Date().toISOString(),
-      };
-
-      if (action === "Approved") {
-        payload.status = "published";
-      } else {
-        payload.status = "draft"; // Ensure it stays hidden
-      }
-
-      const { error } = await supabase
-        .from("articles")
-        .update(payload)
-        .eq("id", id);
-      if (error) throw error;
+      await adminUpdateArticleApprovalFn({
+        data: {
+          id,
+          action,
+        },
+      });
 
       toast.success(`Article ${action}`);
-      load(); // refresh
+      load();
     } catch (e: any) {
       toast.error(e.message || "Action failed");
     }
@@ -92,12 +74,8 @@ export function PendingNewsManager({ resourceKey }: { resourceKey?: string }) {
           </thead>
           <tbody>
             {rows.map((r) => {
-              const catName = Array.isArray(r.category)
-                ? r.category[0]?.name
-                : r.category?.name;
-              const repName = Array.isArray(r.reporter)
-                ? r.reporter[0]?.name
-                : r.reporter?.name;
+              const catName = typeof r.category === "string" ? r.category : r.category?.name;
+              const repName = typeof r.reporter === "string" ? r.reporter : (r.reporter?.name || r.author);
 
               return (
                 <tr key={r.id} className="border-t border-navy/5">
@@ -107,12 +85,12 @@ export function PendingNewsManager({ resourceKey }: { resourceKey?: string }) {
                   >
                     {r.title}
                   </td>
-                  <td className="px-3 py-3">{repName || "Unknown Reporter"}</td>
+                  <td className="px-3 py-3">{repName || "Reporter"}</td>
                   <td className="px-3 py-3 text-xs text-navy/60 hidden md:table-cell">
                     {catName || "Uncategorized"}
                   </td>
                   <td className="px-3 py-3 text-xs text-navy/60 hidden lg:table-cell">
-                    {new Date(r.created_at).toLocaleDateString()}
+                    {r.created_at ? new Date(r.created_at).toLocaleDateString() : "-"}
                   </td>
                   <td className="px-3 py-3 text-right">
                     <div className="flex justify-end gap-1.5">

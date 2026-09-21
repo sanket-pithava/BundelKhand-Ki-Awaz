@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { adminGetResourceFn, adminSaveResourceFn } from "@/lib/admin-queries";
 import {
   Plus,
   Check,
@@ -133,23 +133,27 @@ function ReporterOverview({ userId }: { userId: string }) {
 
   useEffect(() => {
     async function loadStats() {
-      // Temporary hack: Since we don't have reporter_id set up yet, we query all.
-      // In production, we'd add `.eq("reporter_id", userId)`
-      const { data } = await supabase
-        .from("articles")
-        .select("approval_status")
-        .eq("reporter_id", userId);
-      if (!data) return;
+      try {
+        const data = await adminGetResourceFn({
+          data: {
+            table: "articles",
+            filter: { reporter_id: userId },
+          },
+        });
+        if (!data) return;
 
-      let p = 0,
-        a = 0,
-        r = 0;
-      data.forEach((d) => {
-        if (d.approval_status === "Pending") p++;
-        else if (d.approval_status === "Approved") a++;
-        else if (d.approval_status === "Rejected") r++;
-      });
-      setStats({ pending: p, approved: a, rejected: r });
+        let p = 0,
+          a = 0,
+          r = 0;
+        data.forEach((d: any) => {
+          if (d.approval_status === "Pending") p++;
+          else if (d.approval_status === "Approved") a++;
+          else if (d.approval_status === "Rejected") r++;
+        });
+        setStats({ pending: p, approved: a, rejected: r });
+      } catch (err) {
+        console.error("Load stats error:", err);
+      }
     }
     loadStats();
   }, [userId]);
@@ -196,19 +200,21 @@ function ReporterArticles({ userId }: { userId: string }) {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
-      .from("articles")
-      .select(
-        `
-        *,
-        category:categories(name)
-      `,
-      )
-      .eq("reporter_id", userId)
-      .order("created_at", { ascending: false });
-
-    setRows(data || []);
-    setLoading(false);
+    try {
+      const data = await adminGetResourceFn({
+        data: {
+          table: "articles",
+          filter: { reporter_id: userId },
+          orderBy: "created_at",
+          ascending: false,
+        },
+      });
+      setRows(data || []);
+    } catch (err) {
+      console.error("Load reporter articles error:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -346,14 +352,14 @@ function ReporterProfile({
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase
-      .from("reporters")
-      .select("*")
-      .eq("id", userId)
-      .single()
-      .then(({ data }) => {
-        if (data) setForm({ ...data, email: userEmail }); // Enforce correct email
-      });
+    adminGetResourceFn({
+      data: {
+        table: "reporters",
+        filter: { id: userId },
+      },
+    }).then((data) => {
+      if (data && data.length > 0) setForm({ ...data[0], email: userEmail });
+    });
   }, [userId, userEmail]);
 
   function set(k: string, v: string) {
@@ -374,9 +380,13 @@ function ReporterProfile({
     setBusy(true);
     try {
       const payload = { ...form, id: userId };
-      // Insert or update
-      const { error } = await supabase.from("reporters").upsert(payload);
-      if (error) throw error;
+      await adminSaveResourceFn({
+        data: {
+          table: "reporters",
+          id: userId,
+          data: payload,
+        },
+      });
       toast.success("Profile saved");
     } catch (e: any) {
       toast.error(e.message || "Failed to save profile");

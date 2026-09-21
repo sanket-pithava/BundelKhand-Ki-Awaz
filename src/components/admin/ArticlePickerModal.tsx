@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Search, X, Loader2, Check } from "lucide-react";
+import {
+  adminGetSelectorsDataFn,
+  adminSearchArticlesForPickerFn,
+} from "@/lib/admin-queries";
 
 type Article = {
   id: string;
@@ -35,12 +38,11 @@ export function ArticlePickerModal({
   const limit = 20;
 
   useEffect(() => {
-    (supabase as any)
-      .from("categories")
-      .select("id, name")
-      .then(({ data }: any) => {
-        if (data) setCategories(data);
-      });
+    adminGetSelectorsDataFn()
+      .then((data) => {
+        if (data.categories) setCategories(data.categories);
+      })
+      .catch((err) => console.error(err));
   }, []);
 
   async function fetchArticles(isNewSearch = false) {
@@ -49,47 +51,26 @@ export function ArticlePickerModal({
       setPage(0);
     }
 
-    let query = (supabase as any)
-      .from("articles")
-      .select(
-        `
-        id, title, slug, image_url, publish_at,
-        category:categories(name),
-        district:districts(name)
-      `,
-      )
-      .eq("status", "published")
-      .order("publish_at", { ascending: false });
+    const currentPage = isNewSearch ? 0 : page;
 
-    if (search) {
-      query = query.ilike("title", `%${search}%`);
-    }
-    if (categoryId) {
-      query = query.eq("category_id", categoryId);
-    }
+    try {
+      const data = await adminSearchArticlesForPickerFn({
+        data: {
+          search: search.trim() || undefined,
+          categoryId: categoryId || undefined,
+          page: currentPage,
+          limit,
+        },
+      });
 
-    const from = isNewSearch ? 0 : page * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
-
-    const { data, error } = await query;
-    if (error) {
-      console.error(error);
-    } else {
-      const formatted =
-        data?.map((d: any) => ({
-          ...d,
-          category: Array.isArray(d.category) ? d.category[0] : d.category,
-          district: Array.isArray(d.district) ? d.district[0] : d.district,
-        })) || [];
-
-      setArticles((prev) =>
-        isNewSearch ? formatted : [...prev, ...formatted],
-      );
-      setHasMore(formatted.length === limit);
+      setArticles((prev) => (isNewSearch ? data : [...prev, ...data]));
+      setHasMore(data.length === limit);
       if (!isNewSearch) setPage((p) => p + 1);
+    } catch (err) {
+      console.error("Fetch articles error:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   // Debounce search

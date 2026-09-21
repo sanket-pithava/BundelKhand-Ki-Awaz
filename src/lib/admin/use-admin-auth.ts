@@ -1,9 +1,15 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import { useEffect, useState, useCallback } from "react";
+import { adminGetSessionFn } from "@/lib/admin-auth";
+
+export type AdminUser = {
+  id: string;
+  email: string;
+  name?: string;
+  role: string;
+};
 
 export type AdminAuthState = {
-  user: User | null;
+  user: AdminUser | null;
   isAdmin: boolean;
   isReporter: boolean;
   loading: boolean;
@@ -17,45 +23,52 @@ export function useAdminAuth(): AdminAuthState {
     loading: true,
   });
 
-  useEffect(() => {
-    let mounted = true;
+  const checkAuth = useCallback(async () => {
+    if (typeof window === "undefined") {
+      setState({ user: null, isAdmin: false, isReporter: false, loading: false });
+      return;
+    }
 
-    const check = async (user: User | null) => {
-      if (!user) {
-        if (mounted)
-          setState({
-            user: null,
-            isAdmin: false,
-            isReporter: false,
-            loading: false,
-          });
-        return;
+    const token = localStorage.getItem("admin_token");
+    if (!token) {
+      setState({ user: null, isAdmin: false, isReporter: false, loading: false });
+      return;
+    }
+
+    try {
+      const res = await adminGetSessionFn({ data: { token } });
+      if (res?.user) {
+        setState({
+          user: res.user,
+          isAdmin: res.isAdmin,
+          isReporter: res.isReporter,
+          loading: false,
+        });
+      } else {
+        localStorage.removeItem("admin_token");
+        setState({ user: null, isAdmin: false, isReporter: false, loading: false });
       }
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
+    } catch {
+      localStorage.removeItem("admin_token");
+      setState({ user: null, isAdmin: false, isReporter: false, loading: false });
+    }
+  }, []);
 
-      const roles = data?.map((r) => r.role) || [];
-      const isAdmin = roles.includes("admin");
-      const isReporter = roles.includes("editor"); // Map editor to reporter
+  useEffect(() => {
+    checkAuth();
 
-      if (mounted) setState({ user, isAdmin, isReporter, loading: false });
+    const handleAuthChange = () => {
+      checkAuth();
     };
 
-    supabase.auth
-      .getSession()
-      .then(({ data }) => check(data.session?.user ?? null));
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      check(session?.user ?? null);
-    });
+    window.addEventListener("admin-auth-changed", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
 
     return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
+      window.removeEventListener("admin-auth-changed", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
     };
-  }, []);
+  }, [checkAuth]);
 
   return state;
 }

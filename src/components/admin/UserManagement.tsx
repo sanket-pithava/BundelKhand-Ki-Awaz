@@ -1,71 +1,42 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Check, Shield, User } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { Plus, Shield, User, Trash2 } from "lucide-react";
+import { adminGetUsersFn, adminRegisterFn, adminUpdateUserRoleFn, adminDeleteUserFn } from "@/lib/admin-auth";
 
 export function UserManagement() {
   const [busy, setBusy] = useState(false);
-  const [role, setRole] = useState<"admin" | "editor">("editor"); // 'editor' is Reporter
+  const [role, setRole] = useState<"admin" | "editor">("editor");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-
   const [users, setUsers] = useState<any[]>([]);
 
-  // Load existing roles
+  const loadUsers = async () => {
+    try {
+      const data = await adminGetUsersFn();
+      setUsers(data || []);
+    } catch (e: any) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
-    supabase
-      .from("user_roles")
-      .select("user_id, role")
-      .then(({ data }) => {
-        setUsers(data || []);
-      });
-  }, [busy]);
+    loadUsers();
+  }, []);
 
   async function createUser(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
 
     try {
-      // Create a temporary client so it doesn't affect the Super Admin's current session
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-      const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { persistSession: false },
+      await adminRegisterFn({
+        data: {
+          email,
+          password,
+          name: name || email.split("@")[0],
+          role,
+        },
       });
-
-      // 1. Sign up user
-      const { data, error } = await tempClient.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      if (!data.user) throw new Error("No user returned from signup");
-
-      const userId = data.user.id;
-
-      // 2. Set Role
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: userId,
-        role: role,
-      });
-      if (roleError) {
-        // If it already exists or fails, just upsert
-        await supabase.from("user_roles").upsert({ user_id: userId, role });
-      }
-
-      // 3. If Reporter, initialize reporters table
-      if (role === "editor") {
-        const { error: repError } = await supabase.from("reporters").insert({
-          id: userId,
-          email: email,
-          name: name || "New Reporter",
-          status: true,
-        });
-        if (repError) console.error("Reporter table insert error:", repError);
-      }
 
       toast.success(
         `${role === "editor" ? "Reporter" : "Admin"} account created successfully!`,
@@ -73,6 +44,7 @@ export function UserManagement() {
       setEmail("");
       setPassword("");
       setName("");
+      loadUsers();
     } catch (e: any) {
       toast.error(e.message || "Failed to create user");
     } finally {
@@ -80,8 +52,29 @@ export function UserManagement() {
     }
   }
 
+  async function updateRole(userId: string, newRole: "admin" | "editor" | "user") {
+    try {
+      await adminUpdateUserRoleFn({ data: { userId, role: newRole } });
+      toast.success("User role updated");
+      loadUsers();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update role");
+    }
+  }
+
+  async function deleteUser(userId: string) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await adminDeleteUserFn({ data: { userId } });
+      toast.success("User removed");
+      loadUsers();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete user");
+    }
+  }
+
   const admins = users.filter((u) => u.role === "admin").length;
-  const reporters = users.filter((u) => u.role === "editor").length;
+  const reporters = users.filter((u) => u.role === "editor" || u.role === "reporter").length;
 
   return (
     <div className="space-y-8">
@@ -108,91 +101,128 @@ export function UserManagement() {
         </div>
       </div>
 
-      <div className="bg-white border border-navy/10 rounded-2xl p-6 max-w-xl">
-        <h3 className="text-lg font-bold text-navy mb-4">Create New User</h3>
-        <form onSubmit={createUser} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
-              Account Type
-            </label>
-            <div className="mt-2 flex gap-4">
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="radio"
-                  checked={role === "editor"}
-                  onChange={() => setRole("editor")}
-                />{" "}
-                Reporter
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white border border-navy/10 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-navy mb-4">Create New User</h3>
+          <form onSubmit={createUser} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
+                Account Type
               </label>
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="radio"
-                  checked={role === "admin"}
-                  onChange={() => setRole("admin")}
-                />{" "}
-                Super Admin
-              </label>
+              <div className="mt-2 flex gap-4">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={role === "editor"}
+                    onChange={() => setRole("editor")}
+                  />{" "}
+                  Reporter
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={role === "admin"}
+                    onChange={() => setRole("admin")}
+                  />{" "}
+                  Super Admin
+                </label>
+              </div>
             </div>
-          </div>
 
-          {role === "editor" && (
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
                 Full Name
               </label>
               <input
-                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
-                placeholder="Reporter Name"
+                placeholder={role === "editor" ? "Reporter Name" : "Admin Name"}
               />
             </div>
-          )}
 
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
-              Email
-            </label>
-            <input
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
-              placeholder="user@example.com"
-            />
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
+                Email
+              </label>
+              <input
+                required
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
+                placeholder="user@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
+                Password
+              </label>
+              <input
+                required
+                type="text"
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
+                placeholder="min 6 characters"
+              />
+              <p className="text-[10px] text-navy/40 mt-1">
+                Make sure to securely share this password with the user.
+              </p>
+            </div>
+
+            <button
+              disabled={busy}
+              type="submit"
+              className="flex items-center gap-2 rounded-lg bg-navy px-6 py-2.5 text-sm font-semibold text-paper disabled:opacity-50"
+            >
+              <Plus className="size-4" />{" "}
+              {busy
+                ? "Creating..."
+                : `Create ${role === "editor" ? "Reporter" : "Admin"}`}
+            </button>
+          </form>
+        </div>
+
+        <div className="bg-white border border-navy/10 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-navy mb-4">Existing Users</h3>
+          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+            {users.map((u) => (
+              <div
+                key={u.id}
+                className="flex items-center justify-between p-3 rounded-xl border border-navy/10 hover:bg-navy/5 transition"
+              >
+                <div>
+                  <div className="font-semibold text-sm text-navy">{u.name || u.email}</div>
+                  <div className="text-xs text-navy/60">{u.email}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={u.role}
+                    onChange={(e) => updateRole(u.id, e.target.value as any)}
+                    className="text-xs font-medium rounded border border-navy/20 px-2 py-1 bg-white"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="editor">Reporter</option>
+                    <option value="user">User</option>
+                  </select>
+                  <button
+                    onClick={() => deleteUser(u.id)}
+                    className="p-1.5 text-red-600 hover:bg-red-50 rounded transition"
+                    title="Remove user"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {users.length === 0 && (
+              <p className="text-center text-xs text-navy/40 py-8">No users found.</p>
+            )}
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-navy/60">
-              Password
-            </label>
-            <input
-              required
-              type="text"
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
-              placeholder="min 6 characters"
-            />
-            <p className="text-[10px] text-navy/40 mt-1">
-              Make sure to securely share this password with the user.
-            </p>
-          </div>
-
-          <button
-            disabled={busy}
-            type="submit"
-            className="flex items-center gap-2 rounded-lg bg-navy px-6 py-2.5 text-sm font-semibold text-paper disabled:opacity-50"
-          >
-            <Plus className="size-4" />{" "}
-            {busy
-              ? "Creating..."
-              : `Create ${role === "editor" ? "Reporter" : "Admin"}`}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

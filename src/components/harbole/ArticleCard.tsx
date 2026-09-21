@@ -47,6 +47,12 @@ export function ArticleCard({
             src={imageUrl}
             alt={article.title}
             loading="lazy"
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              target.onerror = null;
+              target.src = "/favicon.png";
+              target.className = "w-full h-44 object-contain p-6 bg-paper/60 opacity-60 block";
+            }}
             className="w-full h-auto object-contain block group-hover:scale-[1.03] transition-transform duration-700"
           />
         ) : (

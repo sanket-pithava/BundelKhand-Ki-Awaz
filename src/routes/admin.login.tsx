@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { adminLoginFn, adminRegisterFn, adminGetSessionFn } from "@/lib/admin-auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/login")({
@@ -15,9 +15,14 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) nav({ to: "/admin", replace: true });
-    });
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    if (token) {
+      adminGetSessionFn({ data: { token } })
+        .then((res) => {
+          if (res?.user) nav({ to: "/admin", replace: true });
+        })
+        .catch(() => {});
+    }
   }, [nav]);
 
   async function submit(e: React.FormEvent) {
@@ -25,20 +30,32 @@ function LoginPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
+        const res = await adminRegisterFn({
+          data: {
+            email,
+            password,
+          },
         });
-        if (error) throw error;
-        toast.success("Account created. Signing you in…");
+        if (res?.token) {
+          localStorage.setItem("admin_token", res.token);
+          window.dispatchEvent(new Event("admin-auth-changed"));
+          toast.success("Account created successfully!");
+          nav({ to: "/admin", replace: true });
+        }
+      } else {
+        const res = await adminLoginFn({
+          data: {
+            email,
+            password,
+          },
+        });
+        if (res?.token) {
+          localStorage.setItem("admin_token", res.token);
+          window.dispatchEvent(new Event("admin-auth-changed"));
+          toast.success("Signed in successfully!");
+          nav({ to: "/admin", replace: true });
+        }
       }
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
-      nav({ to: "/admin", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {

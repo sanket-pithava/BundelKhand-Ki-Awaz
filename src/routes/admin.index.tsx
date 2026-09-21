@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { uploadMedia } from "@/lib/admin/upload";
-import { adminGetResourceFn, adminSaveResourceFn, adminDeleteResourceFn } from "@/lib/admin-queries";
+import {
+  adminGetResourceFn,
+  adminSaveResourceFn,
+  adminDeleteResourceFn,
+  adminGetSelectorsDataFn,
+} from "@/lib/admin-queries";
 import { toast } from "sonner";
 import { Plus, Edit2, Trash2, Save, X, Upload } from "lucide-react";
 import { PlacementManager } from "@/components/admin/PlacementManager";
@@ -686,74 +690,31 @@ export function EditDrawer({
   const [articles, setArticles] = useState<{ id: string; title: string }[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (resource.fields.some((f) => f.type === "select_article")) {
-      (supabase as any)
-        .from("articles")
-        .select("id, title")
-        .eq("status", "published")
-        .order("publish_at", { ascending: false })
-        .limit(200)
-        .then(({ data }: any) => {
-          if (data) setArticles(data);
-        });
-    }
-    if (
-      resource.fields.some(
-        (f) => f.type === "multiselect" || f.type === "select_category",
-      )
-    ) {
-      (supabase as any)
-        .from("categories")
-        .select("id, name, slug")
-        .then(({ data }: any) => {
-          if (data) setCategories(data);
-        });
-    }
-    if (resource.fields.some((f) => f.type === "select_district")) {
-      (supabase as any)
-        .from("districts")
-        .select("id, name")
-        .then(({ data }: any) => {
-          if (data) setDistricts(data);
-        });
-    }
+  const [allSubDistricts, setAllSubDistricts] = useState<
+    { id: string; name: string; jila_id?: string }[]
+  >([]);
 
-    if (
-      resource.fields.some(
-        (f) => f.type === "multiselect" && f.key === "_categories",
-      )
-    ) {
-      if (!isNew) {
-        (supabase as any)
-          .from("district_categories")
-          .select("category_id")
-          .eq("district_id", form.id)
-          .then(({ data }: any) => {
-            if (data)
-              setSelectedCategories(data.map((d: any) => d.category_id));
-          });
-      }
-    }
-  }, [resource, form.id, isNew]);
+  useEffect(() => {
+    adminGetSelectorsDataFn()
+      .then((data) => {
+        if (data.categories) setCategories(data.categories);
+        if (data.districts) setDistricts(data.districts);
+        if (data.subDistricts) setAllSubDistricts(data.subDistricts);
+        if (data.articles) setArticles(data.articles);
+      })
+      .catch((err) => console.error("Selectors load error:", err));
+  }, []);
 
   useEffect(() => {
     const jilaId = form.district_id || form.jila_id;
     if (jilaId) {
-      (supabase as any)
-        .from("sub_districts")
-        .select("id, name")
-        .eq("jila_id", jilaId)
-        .eq("status", true)
-        .then(({ data }: any) => {
-          if (data) setSubDistricts(data);
-        });
+      setSubDistricts(allSubDistricts.filter((s) => s.jila_id === jilaId));
     } else {
       setSubDistricts([]);
       if (form.sub_district_id)
         setForm((f) => ({ ...f, sub_district_id: null }));
     }
-  }, [form.district_id, form.jila_id]);
+  }, [form.district_id, form.jila_id, allSubDistricts]);
 
   function set<K extends string>(k: K, v: unknown) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -807,17 +768,14 @@ export function EditDrawer({
           (f) => f.type === "multiselect" && f.key === "_categories",
         )
       ) {
-        await (supabase as any)
-          .from("district_categories")
-          .delete()
-          .eq("district_id", savedId);
         if (selectedCategories.length > 0) {
-          await (supabase as any).from("district_categories").insert(
-            selectedCategories.map((cid) => ({
-              district_id: savedId,
-              category_id: cid,
-            })),
-          );
+          await adminSaveResourceFn({
+            data: {
+              table: "districts",
+              id: savedId,
+              data: { assigned_categories: selectedCategories },
+            },
+          });
         }
       }
       onSaved();

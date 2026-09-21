@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Edit2, Trash2, Check, ExternalLink } from "lucide-react";
-import { EditDrawer } from "@/routes/admin.index"; // We'll export EditDrawer from admin.index.tsx
+import { Plus, Edit2, Trash2 } from "lucide-react";
+import { EditDrawer } from "@/routes/admin.index";
+import {
+  adminGetArticlesListFn,
+  adminDeleteResourceFn,
+  adminToggleArticlePlacementFn,
+} from "@/lib/admin-queries";
 
 export function ArticleManager({ resource }: { resource: any }) {
   const [rows, setRows] = useState<any[]>([]);
@@ -11,23 +15,14 @@ export function ArticleManager({ resource }: { resource: any }) {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await (supabase as any)
-      .from("articles")
-      .select(
-        `
-        *,
-        category:categories(name),
-        district:districts(name),
-        hero:homepage_hero(id),
-        breaking:homepage_breaking(id),
-        top10:homepage_top10(id)
-      `,
-      )
-      .order("created_at", { ascending: false });
-
-    if (error) toast.error(error.message);
-    setRows(data || []);
-    setLoading(false);
+    try {
+      const data = await adminGetArticlesListFn();
+      setRows(data || []);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to load articles");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -36,13 +31,13 @@ export function ArticleManager({ resource }: { resource: any }) {
 
   async function remove(id: string) {
     if (!confirm("Delete this article completely?")) return;
-    const { error } = await (supabase as any)
-      .from("articles")
-      .delete()
-      .eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Deleted");
-    load();
+    try {
+      await adminDeleteResourceFn({ data: { table: "articles", id } });
+      toast.success("Deleted");
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete article");
+    }
   }
 
   async function togglePlacement(
@@ -50,29 +45,23 @@ export function ArticleManager({ resource }: { resource: any }) {
     articleId: string,
     placementId: string | null,
   ) {
-    if (placementId) {
-      // Remove
-      const { error } = await (supabase as any)
-        .from(table)
-        .delete()
-        .eq("id", placementId);
-      if (error) toast.error(error.message);
-      else toast.success("Removed from placement");
-    } else {
-      // Add
-      const { data: minData } = await (supabase as any)
-        .from(table)
-        .select("sort_order")
-        .order("sort_order", { ascending: true })
-        .limit(1);
-      const minSort = minData?.[0]?.sort_order ?? 0;
-      const { error } = await (supabase as any)
-        .from(table)
-        .insert({ article_id: articleId, sort_order: minSort - 1 });
-      if (error) toast.error(error.message);
-      else toast.success("Added to placement");
+    try {
+      const res = await adminToggleArticlePlacementFn({
+        data: {
+          table,
+          articleId,
+          placementId,
+        },
+      });
+      if (res.action === "removed") {
+        toast.success("Removed from placement");
+      } else {
+        toast.success("Added to placement");
+      }
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Placement update failed");
     }
-    load();
   }
 
   return (
@@ -103,20 +92,16 @@ export function ArticleManager({ resource }: { resource: any }) {
           </thead>
           <tbody>
             {rows.map((r) => {
-              const catName = Array.isArray(r.category)
-                ? r.category[0]?.name
-                : r.category?.name;
-              const distName = Array.isArray(r.district)
-                ? r.district[0]?.name
-                : r.district?.name;
+              const catName = typeof r.category === "string" ? r.category : r.category?.name;
+              const distName = typeof r.district === "string" ? r.district : r.district?.name;
 
-              const isHero = r.hero && r.hero.length > 0;
-              const isBreaking = r.breaking && r.breaking.length > 0;
-              const isTop10 = r.top10 && r.top10.length > 0;
+              const isHero = !!r.hero?.id;
+              const isBreaking = !!r.breaking?.id;
+              const isTop10 = !!r.top10?.id;
 
-              const heroId = isHero ? r.hero[0].id : null;
-              const breakingId = isBreaking ? r.breaking[0].id : null;
-              const top10Id = isTop10 ? r.top10[0].id : null;
+              const heroId = isHero ? r.hero.id : null;
+              const breakingId = isBreaking ? r.breaking.id : null;
+              const top10Id = isTop10 ? r.top10.id : null;
 
               return (
                 <tr
@@ -125,9 +110,9 @@ export function ArticleManager({ resource }: { resource: any }) {
                 >
                   <td className="px-3 py-3 align-top">
                     <div className="size-12 rounded bg-navy/5 overflow-hidden">
-                      {r.image_url && (
+                      {(r.image_url || r.image) && (
                         <img
-                          src={r.image_url}
+                          src={r.image_url || r.image}
                           className="w-full h-full object-contain"
                           alt=""
                         />

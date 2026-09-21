@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Plus, GripVertical } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { ArticlePickerModal } from "./ArticlePickerModal";
+import {
+  adminGetPlacementsFn,
+  adminAddPlacementFn,
+  adminDeleteResourceFn,
+} from "@/lib/admin-queries";
 
 export function PlacementManager({ resource }: { resource: any }) {
   const [rows, setRows] = useState<any[]>([]);
@@ -11,16 +15,14 @@ export function PlacementManager({ resource }: { resource: any }) {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await (supabase as any)
-      .from(resource.table)
-      .select(
-        "id, sort_order, article_id, article:articles(title, image_url, category:categories(name), district:districts(name))",
-      )
-      .order("sort_order", { ascending: true });
-
-    if (error) toast.error(error.message);
-    setRows(data || []);
-    setLoading(false);
+    try {
+      const data = await adminGetPlacementsFn({ data: { table: resource.table } });
+      setRows(data || []);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to load placements");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -29,35 +31,22 @@ export function PlacementManager({ resource }: { resource: any }) {
 
   async function remove(id: string) {
     if (!confirm("Remove this article from " + resource.label + "?")) return;
-    const { error } = await (supabase as any)
-      .from(resource.table)
-      .delete()
-      .eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Removed");
-    load();
+    try {
+      await adminDeleteResourceFn({ data: { table: resource.table, id } });
+      toast.success("Removed");
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to remove");
+    }
   }
 
   async function addArticle(articleId: string) {
-    // Check if already exists
-    if (rows.some((r) => r.article_id === articleId)) {
-      toast.error("Article is already in " + resource.label);
-      return;
-    }
-
-    const maxSort =
-      rows.length > 0 ? Math.max(...rows.map((r) => r.sort_order)) : 0;
-
-    const { error } = await (supabase as any).from(resource.table).insert({
-      article_id: articleId,
-      sort_order: maxSort + 1,
-    });
-
-    if (error) {
-      toast.error(error.message);
-    } else {
+    try {
+      await adminAddPlacementFn({ data: { table: resource.table, articleId } });
       toast.success("Added to " + resource.label);
       load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add article");
     }
     setPickerOpen(false);
   }
@@ -89,13 +78,9 @@ export function PlacementManager({ resource }: { resource: any }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => {
-              const article = Array.isArray(r.article)
-                ? r.article[0]
-                : r.article;
-              const catName = Array.isArray(article?.category)
-                ? article.category[0]?.name
-                : article?.category?.name;
+            {rows.map((r) => {
+              const article = r.article;
+              const catName = typeof article?.category === "string" ? article?.category : article?.category?.name;
 
               return (
                 <tr key={r.id} className="border-t border-navy/5 group">
