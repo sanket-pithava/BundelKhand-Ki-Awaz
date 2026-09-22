@@ -773,6 +773,18 @@ export function EditDrawer({
         }
       }
 
+      if (resource.table === "homepage_sections" && payload.category_id) {
+        const selectedCat = categories.find(
+          (c) => c.id === payload.category_id,
+        );
+        if (selectedCat) {
+          if (!payload.title_hindi) payload.title_hindi = selectedCat.name.trim();
+          if (!payload.title_english && selectedCat.slug) {
+            payload.title_english = selectedCat.slug.replace(/^#/, "").toUpperCase();
+          }
+        }
+      }
+
       const saveRes = await adminSaveResourceFn({
         data: {
           table: resource.table,
@@ -943,7 +955,22 @@ export function EditDrawer({
                   <select
                     id={id}
                     value={(v as string) ?? ""}
-                    onChange={(e) => set(f.key, e.target.value || null)}
+                    onChange={(e) => {
+                      const val = e.target.value || null;
+                      set(f.key, val);
+                      if (resource.table === "homepage_sections" && val) {
+                        const selCat = categories.find((c) => c.id === val);
+                        if (selCat) {
+                          if (!form.title_hindi) set("title_hindi", selCat.name.trim());
+                          if (!form.title_english && selCat.slug) {
+                            set(
+                              "title_english",
+                              selCat.slug.replace(/^#/, "").toUpperCase(),
+                            );
+                          }
+                        }
+                      }
+                    }}
                     className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
                   >
                     <option value="">-- Select Category --</option>

@@ -95,7 +95,7 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
     ] = await Promise.all([
       db
         .collection("homepage_sections")
-        .find({ status: true })
+        .find({ status: { $ne: false } })
         .sort({ sort_order: 1 })
         .toArray(),
       db
@@ -210,12 +210,29 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       .map((s) => s.category_id)
       .filter(Boolean);
 
-    const targetCategoryNames = sectionCategoryIds
-      .map((id) => catMap.get(id)?.name)
-      .filter(Boolean);
+    const targetCategoryNames = Array.from(
+      new Set([
+        ...sectionCategoryIds.map((id) => catMap.get(id)?.name).filter(Boolean),
+        ...sectionCategoryIds.map((id) => catMap.get(id)?.name?.trim()).filter(Boolean),
+        ...sectionsRaw.map((s) => s.title_hindi).filter(Boolean),
+        ...sectionsRaw.map((s) => s.title_hindi?.trim()).filter(Boolean),
+        ...sectionsRaw.map((s) => " " + s.title_hindi?.trim()).filter(Boolean),
+      ]),
+    );
+
+    const targetCategorySlugs = sectionCategoryIds
+      .map((id) => catMap.get(id)?.slug)
+      .filter(Boolean)
+      .flatMap((slug) => [
+        slug as string,
+        (slug as string).replace(/^#/, ""),
+        "#" + (slug as string).replace(/^#/, ""),
+      ]);
 
     const categoryArticlesRaw =
-      sectionCategoryIds.length > 0
+      sectionCategoryIds.length > 0 ||
+      targetCategoryNames.length > 0 ||
+      targetCategorySlugs.length > 0
         ? await db
             .collection("articles")
             .find({
@@ -223,6 +240,7 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
               $or: [
                 { category_id: { $in: sectionCategoryIds } },
                 { category: { $in: targetCategoryNames } },
+                { category_slug: { $in: targetCategorySlugs } },
               ],
             })
             .sort({ publish_at: -1, created_at: -1 })
@@ -230,34 +248,41 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
             .toArray()
         : [];
 
-    const categorySections: HomepageSection[] = sectionsRaw.map((sec) => {
-      const catInfo = catMap.get(sec.category_id);
-      const cleanSlug = (catInfo?.slug || "").replace(/^#/, "");
-      const sectionArticles: DynamicArticle[] = [];
+    const categorySections: HomepageSection[] = sectionsRaw
+      .map((sec) => {
+        const catInfo = catMap.get(sec.category_id);
+        const cleanSlug = (catInfo?.slug || "").replace(/^#/, "");
+        const secHindi = (sec.title_hindi || catInfo?.name || "").trim();
+        const catName = (catInfo?.name || "").trim();
+        const sectionArticles: DynamicArticle[] = [];
 
-      for (const r of categoryArticlesRaw) {
-        const matches =
-          r.category_id === sec.category_id ||
-          (catInfo?.name && r.category === catInfo.name) ||
-          (cleanSlug && (r.category_slug || "").replace(/^#/, "") === cleanSlug) ||
-          (sec.title_hindi && r.category === sec.title_hindi);
+        for (const r of categoryArticlesRaw) {
+          const rCat = (r.category || "").trim();
+          const rSlug = (r.category_slug || "").replace(/^#/, "").trim();
 
-        if (matches) {
-          sectionArticles.push(transformArticle(r));
-          if (sectionArticles.length >= (sec.article_limit || 6)) break;
+          const matches =
+            (sec.category_id && r.category_id === sec.category_id) ||
+            (catName && rCat === catName) ||
+            (cleanSlug && rSlug === cleanSlug) ||
+            (secHindi && rCat === secHindi);
+
+          if (matches) {
+            sectionArticles.push(transformArticle(r));
+            if (sectionArticles.length >= (sec.article_limit || 6)) break;
+          }
         }
-      }
 
-      return {
-        id: (sec.id || sec._id?.toString() || "") as string,
-        title_hindi: (sec.title_hindi || catInfo?.name || "") as string,
-        title_english: (sec.title_english || "") as string,
-        category_id: (sec.category_id || "") as string,
-        category_slug: cleanSlug ? encodeURIComponent(cleanSlug) : "",
-        article_limit: (sec.article_limit || 6) as number,
-        articles: sectionArticles,
-      };
-    });
+        return {
+          id: (sec.id || sec._id?.toString() || "") as string,
+          title_hindi: (sec.title_hindi || catInfo?.name || "") as string,
+          title_english: (sec.title_english || "") as string,
+          category_id: (sec.category_id || "") as string,
+          category_slug: cleanSlug ? encodeURIComponent(cleanSlug) : "",
+          article_limit: (sec.article_limit || 6) as number,
+          articles: sectionArticles,
+        };
+      })
+      .filter((sec) => sec.articles && sec.articles.length > 0);
 
     // 5. Ads
     const ads = adsRaw.map((ad: any) => ({
