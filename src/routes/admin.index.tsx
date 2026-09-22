@@ -57,8 +57,17 @@ const RESOURCES: Resource[] = [
     table: "articles",
     orderBy: "created_at",
     ascending: false,
-    defaults: { status: "draft", approval_status: "Pending", is_impact: false, sort_order: 0 },
+    defaults: { status: "published", approval_status: "Approved", is_impact: false, sort_order: 0 },
     fields: [
+      {
+        key: "status",
+        label: "Publish Status (स्थिति)",
+        type: "select",
+        options: [
+          { label: "Published (लाइव)", value: "published" },
+          { label: "Draft (ड्राफ्ट)", value: "draft" },
+        ],
+      },
       { key: "title", label: "Title (Hindi)", type: "text" },
       {
         key: "slug",
@@ -745,8 +754,9 @@ export function EditDrawer({
       // Explicitly inject hidden fields for articles
       if (resource.table === "articles") {
         if (form.reporter_id !== undefined) payload.reporter_id = form.reporter_id;
-        if (form.status !== undefined) payload.status = form.status;
-        if (form.approval_status !== undefined) payload.approval_status = form.approval_status;
+        const currentStatus = (payload.status as string) || (form.status as string) || "published";
+        payload.status = currentStatus;
+        payload.approval_status = currentStatus === "published" ? "Approved" : (form.approval_status || "Pending");
       }
 
       let savedId = form.id;

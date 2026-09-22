@@ -24,14 +24,21 @@ export function Header({
     search = useSearch({ from: "/" });
   } catch (e) {}
 
-  const selectedDistrictSlug = activeJilaSlug || search.district;
-  const selectedCategorySlug = activeCategorySlug || search.category;
+  const clean = (s?: string) =>
+    decodeURIComponent(s || "").trim().replace(/^#/, "");
+
+  const selectedDistrictSlug = clean(activeJilaSlug || search.district);
+  const selectedCategorySlug = clean(activeCategorySlug || search.category);
 
   const { data, isLoading } = useNavigationData();
 
   const selectedDistrict = useMemo(() => {
     if (!data?.districts) return null;
-    return data.districts.find((d) => d.slug === selectedDistrictSlug) || null;
+    return (
+      data.districts.find(
+        (d) => clean(d.slug) === selectedDistrictSlug || d.name === selectedDistrictSlug,
+      ) || null
+    );
   }, [data, selectedDistrictSlug]);
 
   const displayCategories = useMemo(() => {
@@ -40,29 +47,31 @@ export function Header({
   }, [data]);
 
   const getDistrictUrl = (slug: string) => {
-    if (selectedDistrictSlug === slug) {
+    const cDist = clean(slug);
+    if (selectedDistrictSlug === cDist) {
       return selectedCategorySlug
         ? `/category/${encodeURIComponent(selectedCategorySlug)}`
         : "/";
     }
     return selectedCategorySlug
-      ? `/news/${encodeURIComponent(slug)}/category/${encodeURIComponent(selectedCategorySlug)}`
-      : `/news/${encodeURIComponent(slug)}`;
+      ? `/news/${encodeURIComponent(cDist)}/category/${encodeURIComponent(selectedCategorySlug)}`
+      : `/news/${encodeURIComponent(cDist)}`;
   };
 
   const getCategoryUrl = (slug: string) => {
-    if (selectedCategorySlug === slug) {
+    const cCat = clean(slug);
+    if (selectedCategorySlug === cCat) {
       if (selectedDistrictSlug && activeSubDistrictSlug)
-        return `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}`;
+        return `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(clean(activeSubDistrictSlug))}`;
       if (selectedDistrictSlug)
         return `/news/${encodeURIComponent(selectedDistrictSlug)}`;
       return "/";
     }
     if (selectedDistrictSlug && activeSubDistrictSlug)
-      return `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(activeSubDistrictSlug)}/category/${encodeURIComponent(slug)}`;
+      return `/news/${encodeURIComponent(selectedDistrictSlug)}/district/${encodeURIComponent(clean(activeSubDistrictSlug))}/category/${encodeURIComponent(cCat)}`;
     if (selectedDistrictSlug)
-      return `/news/${encodeURIComponent(selectedDistrictSlug)}/category/${encodeURIComponent(slug)}`;
-    return `/category/${encodeURIComponent(slug)}`;
+      return `/news/${encodeURIComponent(selectedDistrictSlug)}/category/${encodeURIComponent(cCat)}`;
+    return `/category/${encodeURIComponent(cCat)}`;
   };
 
   return (
@@ -133,7 +142,7 @@ export function Header({
                 <div className="h-8 w-64 bg-navy/5 animate-pulse rounded-full" />
               ) : (
                 data?.districts?.map((d) => {
-                  const active = d.slug === selectedDistrictSlug;
+                  const active = clean(d.slug) === selectedDistrictSlug;
                   return (
                     <Link
                       key={d.id}
@@ -169,7 +178,7 @@ export function Header({
                 </span>
               ) : (
                 displayCategories.map((c) => {
-                  const active = c.slug === selectedCategorySlug;
+                  const active = clean(c.slug) === selectedCategorySlug;
                   return (
                     <Link
                       key={c.id}

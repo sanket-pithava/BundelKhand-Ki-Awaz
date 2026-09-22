@@ -26,12 +26,21 @@ export function NewsListingPage({
   );
   const navigate = useNavigate();
 
-  const selectedJila = navData?.districts?.find((d) => d.slug === jilaSlug);
+  const clean = (s?: string) =>
+    decodeURIComponent(s || "").trim().replace(/^#/, "");
+
+  const selectedJila = navData?.districts?.find(
+    (d) => clean(d.slug) === clean(jilaSlug) || d.name === clean(jilaSlug),
+  );
   const selectedSubDistrict = navData?.sub_districts?.find(
-    (sd) => sd.slug === subDistrictSlug,
+    (sd) =>
+      clean(sd.slug) === clean(subDistrictSlug) ||
+      sd.name === clean(subDistrictSlug),
   );
   const selectedCategory = navData?.categories?.find(
-    (c) => c.slug === categorySlug,
+    (c) =>
+      clean(c.slug) === clean(categorySlug) ||
+      c.name === clean(categorySlug),
   );
 
   const displaySubDistricts = useMemo(() => {
@@ -52,32 +61,37 @@ export function NewsListingPage({
     let url = "";
     if (type === "jila") {
       url = categorySlug
-        ? `/category/${encodeURIComponent(categorySlug)}`
+        ? `/category/${encodeURIComponent(clean(categorySlug))}`
         : "/";
     } else if (type === "subDistrict") {
-      url = `/news/${encodeURIComponent(jilaSlug!)}`;
-      if (categorySlug) url += `/category/${encodeURIComponent(categorySlug)}`;
+      url = `/news/${encodeURIComponent(clean(jilaSlug))}`;
+      if (categorySlug)
+        url += `/category/${encodeURIComponent(clean(categorySlug))}`;
     } else if (type === "category") {
       if (jilaSlug && subDistrictSlug)
-        url = `/news/${encodeURIComponent(jilaSlug)}/district/${encodeURIComponent(subDistrictSlug)}`;
-      else if (jilaSlug) url = `/news/${encodeURIComponent(jilaSlug)}`;
+        url = `/news/${encodeURIComponent(clean(jilaSlug))}/district/${encodeURIComponent(clean(subDistrictSlug))}`;
+      else if (jilaSlug) url = `/news/${encodeURIComponent(clean(jilaSlug))}`;
       else url = "/";
     }
     navigate({ to: url });
   };
 
   const getSubDistrictUrl = (sdSlug: string) => {
-    let url = `/news/${encodeURIComponent(jilaSlug!)}/district/${encodeURIComponent(sdSlug)}`;
-    if (categorySlug) url += `/category/${encodeURIComponent(categorySlug)}`;
+    const cJila = clean(jilaSlug);
+    const cSd = clean(sdSlug);
+    let url = `/news/${encodeURIComponent(cJila)}/district/${encodeURIComponent(cSd)}`;
+    if (categorySlug)
+      url += `/category/${encodeURIComponent(clean(categorySlug))}`;
     return url;
   };
 
   const getCategoryUrl = (cSlug: string) => {
+    const cCat = clean(cSlug);
     if (jilaSlug && subDistrictSlug)
-      return `/news/${encodeURIComponent(jilaSlug)}/district/${encodeURIComponent(subDistrictSlug)}/category/${encodeURIComponent(cSlug)}`;
+      return `/news/${encodeURIComponent(clean(jilaSlug))}/district/${encodeURIComponent(clean(subDistrictSlug))}/category/${encodeURIComponent(cCat)}`;
     if (jilaSlug)
-      return `/news/${encodeURIComponent(jilaSlug)}/category/${encodeURIComponent(cSlug)}`;
-    return `/category/${encodeURIComponent(cSlug)}`;
+      return `/news/${encodeURIComponent(clean(jilaSlug))}/category/${encodeURIComponent(cCat)}`;
+    return `/category/${encodeURIComponent(cCat)}`;
   };
 
   return (
@@ -137,7 +151,7 @@ export function NewsListingPage({
                     <Link
                       key={sd.id}
                       to={getSubDistrictUrl(sd.slug)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${subDistrictSlug === sd.slug ? "bg-navy/10 text-navy font-semibold" : "text-navy/70 hover:bg-navy/5 hover:text-navy"}`}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${clean(subDistrictSlug) === clean(sd.slug) ? "bg-navy/10 text-navy font-semibold" : "text-navy/70 hover:bg-navy/5 hover:text-navy"}`}
                     >
                       {sd.name}
                     </Link>
@@ -157,7 +171,7 @@ export function NewsListingPage({
                     <Link
                       key={c.id}
                       to={getCategoryUrl(c.slug)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${categorySlug === c.slug ? "bg-orange/10 text-orange font-semibold" : "text-navy/70 hover:bg-orange/5 hover:text-orange"}`}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${clean(categorySlug) === clean(c.slug) ? "bg-orange/10 text-orange font-semibold" : "text-navy/70 hover:bg-orange/5 hover:text-orange"}`}
                     >
                       {c.name}
                     </Link>

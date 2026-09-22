@@ -34,12 +34,25 @@ export function DistrictGrid() {
   const districts = data?.districts || [];
   if (districts.length === 0) return null;
 
-  const activeDistrict =
-    districts.find((d) => d.slug === selectedDistrictSlug) || districts[0];
+  const clean = (s?: string) =>
+    decodeURIComponent(s || "").trim().replace(/^#/, "");
+  const selectedDistrictClean = clean(selectedDistrictSlug);
+
+  const activeDistrict = selectedDistrictClean
+    ? districts.find(
+        (d) =>
+          clean(d.slug) === selectedDistrictClean ||
+          d.name === selectedDistrictClean,
+      )
+    : null;
 
   function handleDistrictClick(slug: string) {
+    const cSlug = clean(slug);
     navigate({
-      search: (prev: any) => ({ ...prev, district: slug }),
+      search: (prev: any) => ({
+        ...prev,
+        district: clean(prev?.district) === cSlug ? undefined : cSlug,
+      }),
     });
   }
 
@@ -58,7 +71,7 @@ export function DistrictGrid() {
       </div>
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
         {districts.map((d) => {
-          const active = d.slug === activeDistrict?.slug;
+          const active = !!activeDistrict && clean(d.slug) === clean(activeDistrict.slug);
           return (
             <button
               key={d.id}

@@ -232,13 +232,15 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
 
     const categorySections: HomepageSection[] = sectionsRaw.map((sec) => {
       const catInfo = catMap.get(sec.category_id);
+      const cleanSlug = (catInfo?.slug || "").replace(/^#/, "");
       const sectionArticles: DynamicArticle[] = [];
 
       for (const r of categoryArticlesRaw) {
         const matches =
           r.category_id === sec.category_id ||
           (catInfo?.name && r.category === catInfo.name) ||
-          (catInfo?.slug && r.category_slug === catInfo.slug);
+          (cleanSlug && (r.category_slug || "").replace(/^#/, "") === cleanSlug) ||
+          (sec.title_hindi && r.category === sec.title_hindi);
 
         if (matches) {
           sectionArticles.push(transformArticle(r));
@@ -248,10 +250,10 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
 
       return {
         id: (sec.id || sec._id?.toString() || "") as string,
-        title_hindi: (sec.title_hindi || "") as string,
+        title_hindi: (sec.title_hindi || catInfo?.name || "") as string,
         title_english: (sec.title_english || "") as string,
         category_id: (sec.category_id || "") as string,
-        category_slug: (catInfo?.slug ? encodeURIComponent(catInfo.slug) : "") as string,
+        category_slug: cleanSlug ? encodeURIComponent(cleanSlug) : "",
         article_limit: (sec.article_limit || 6) as number,
         articles: sectionArticles,
       };
@@ -350,34 +352,106 @@ export const getArticlesFn = createServerFn({ method: "GET" })
     const { getMongoDb } = await import("@/lib/db");
     const db = await getMongoDb();
     const query: any = { status: "published" };
+    const andClauses: any[] = [];
 
     if (params.categorySlug) {
-      const cat = await db
-        .collection("categories")
-        .findOne({ slug: params.categorySlug });
+      const decodedCat = decodeURIComponent(params.categorySlug).trim();
+      const cleanCat = decodedCat.replace(/^#/, "");
+      const cat = await db.collection("categories").findOne({
+        $or: [
+          { slug: params.categorySlug },
+          { slug: decodedCat },
+          { slug: `#${cleanCat}` },
+          { slug: cleanCat },
+          { name: cleanCat },
+          { name: decodedCat },
+        ],
+      });
+
       if (cat) {
-        query.category_id = cat.id || cat._id?.toString();
+        andClauses.push({
+          $or: [
+            { category_id: cat.id || cat._id?.toString() },
+            { category: cat.name },
+            { category_slug: cat.slug },
+            { category_slug: cleanCat },
+          ],
+        });
       } else {
-        query.category_slug = params.categorySlug;
+        andClauses.push({
+          $or: [
+            { category: cleanCat },
+            { category: decodedCat },
+            { category_slug: params.categorySlug },
+            { category_slug: cleanCat },
+          ],
+        });
       }
     }
 
     if (params.districtSlug) {
-      const dist = await db
-        .collection("districts")
-        .findOne({ slug: params.districtSlug });
+      const decodedDist = decodeURIComponent(params.districtSlug).trim();
+      const cleanDist = decodedDist.replace(/^#/, "");
+      const dist = await db.collection("districts").findOne({
+        $or: [
+          { slug: params.districtSlug },
+          { slug: decodedDist },
+          { slug: `#${cleanDist}` },
+          { slug: cleanDist },
+          { name: cleanDist },
+          { name: decodedDist },
+        ],
+      });
+
       if (dist) {
-        query.district_id = dist.id || dist._id?.toString();
+        andClauses.push({
+          $or: [
+            { district_id: dist.id || dist._id?.toString() },
+            { district: dist.name },
+            { "district.name": dist.name },
+            { district_slug: dist.slug },
+            { district_slug: cleanDist },
+          ],
+        });
+      } else {
+        andClauses.push({
+          $or: [
+            { district: cleanDist },
+            { district: decodedDist },
+            { district_slug: params.districtSlug },
+            { district_slug: cleanDist },
+          ],
+        });
       }
     }
 
     if (params.subDistrictSlug) {
-      const subDist = await db
-        .collection("sub_districts")
-        .findOne({ slug: params.subDistrictSlug });
+      const decodedSub = decodeURIComponent(params.subDistrictSlug).trim();
+      const cleanSub = decodedSub.replace(/^#/, "");
+      const subDist = await db.collection("sub_districts").findOne({
+        $or: [
+          { slug: params.subDistrictSlug },
+          { slug: decodedSub },
+          { slug: `#${cleanSub}` },
+          { slug: cleanSub },
+          { name: cleanSub },
+          { name: decodedSub },
+        ],
+      });
+
       if (subDist) {
-        query.sub_district_id = subDist.id || subDist._id?.toString();
+        andClauses.push({
+          $or: [
+            { sub_district_id: subDist.id || subDist._id?.toString() },
+            { sub_district: subDist.name },
+            { "sub_district.name": subDist.name },
+          ],
+        });
       }
+    }
+
+    if (andClauses.length > 0) {
+      query.$and = andClauses;
     }
 
     const [articles, categoriesList, districtsList] = await Promise.all([

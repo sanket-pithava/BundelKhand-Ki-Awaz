@@ -6,6 +6,7 @@ import {
   adminGetArticlesListFn,
   adminDeleteResourceFn,
   adminToggleArticlePlacementFn,
+  adminSaveResourceFn,
 } from "@/lib/admin-queries";
 
 export function ArticleManager({ resource }: { resource: any }) {
@@ -37,6 +38,28 @@ export function ArticleManager({ resource }: { resource: any }) {
       load();
     } catch (err: any) {
       toast.error(err.message || "Failed to delete article");
+    }
+  }
+
+  async function toggleStatus(id: string, currentStatus: string) {
+    const nextStatus = currentStatus === "published" ? "draft" : "published";
+    try {
+      await adminSaveResourceFn({
+        data: {
+          table: "articles",
+          id,
+          data: {
+            id,
+            status: nextStatus,
+            approval_status: nextStatus === "published" ? "Approved" : "Pending",
+            updated_at: new Date().toISOString(),
+          },
+        },
+      });
+      toast.success(nextStatus === "published" ? "Article is now LIVE" : "Article set to Draft");
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to toggle status");
     }
   }
 
@@ -123,16 +146,20 @@ export function ArticleManager({ resource }: { resource: any }) {
                     <div className="font-bold text-navy text-sm line-clamp-2 leading-snug mb-1">
                       {r.title}
                     </div>
-                    <div className="flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-wider text-navy/50">
-                      <span
-                        className={
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-navy/50">
+                      <button
+                        type="button"
+                        onClick={() => toggleStatus(r.id, r.status)}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-bold transition-all ${
                           r.status === "published"
-                            ? "text-green-600"
-                            : "text-orange-500"
-                        }
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100"
+                            : "bg-amber-50 text-amber-700 border border-amber-300 hover:bg-amber-100"
+                        }`}
+                        title="Click to toggle between Published (Live) and Draft"
                       >
-                        {r.status}
-                      </span>
+                        <span className={`size-1.5 rounded-full ${r.status === "published" ? "bg-emerald-500" : "bg-amber-500"}`} />
+                        {r.status === "published" ? "Live" : "Draft"}
+                      </button>
                       <span>•</span>
                       <span>{catName || "Uncategorized"}</span>
                       {distName && <span>• {distName}</span>}
