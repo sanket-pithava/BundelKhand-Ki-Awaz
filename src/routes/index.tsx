@@ -134,7 +134,7 @@ function HomePage() {
                   <ScrollableRow className="gap-5 px-4 pb-2">
                     {homeData.top10Articles.map((a, i) => (
                       <div
-                        key={a.slug}
+                        key={`${a.slug}-${i}`}
                         className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3"
                       >
                         <span className="absolute -top-1 -left-1 text-[80px] leading-none font-bold text-gold/25 italic select-none font-sans">
@@ -409,9 +409,9 @@ function CategoryBand({
     <section className="py-8 md:py-12">
       <SectionHeader hindi={hindi} english={english} href={href} />
       <ScrollableRow className="gap-4 md:gap-6 px-4 md:px-6 pb-2">
-        {items.map((a) => (
+        {items.map((a, idx) => (
           <div
-            key={a.slug}
+            key={`${a.slug}-${idx}`}
             className="shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start"
           >
             <ArticleCard article={a} />

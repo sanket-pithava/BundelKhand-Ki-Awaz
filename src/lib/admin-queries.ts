@@ -185,11 +185,11 @@ export const adminGetPlacementsFn = createServerFn({ method: "POST" })
         article_id: p.article_id,
         article: art
           ? {
-              title: art.title,
-              image_url: art.image_url || art.image,
-              category: art.category,
-              district: art.district,
-            }
+            title: art.title,
+            image_url: art.image_url || art.image,
+            category: art.category,
+            district: art.district,
+          }
           : null,
       };
     });
@@ -292,4 +292,36 @@ export const adminSearchArticlesForPickerFn = createServerFn({ method: "POST" })
       category: d.category ? { name: typeof d.category === "string" ? d.category : d.category.name } : null,
       district: d.district ? { name: typeof d.district === "string" ? d.district : d.district.name } : null,
     }));
+  });
+
+// 12. Save Uploaded Media to Static Files
+export const saveMediaFileFn = createServerFn({ method: "POST" })
+  .validator((params: { base64: string; filename?: string }) => params)
+  .handler(async ({ data: params }) => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const crypto = await import("node:crypto");
+
+    const match = params.base64.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
+    if (!match) return { url: params.base64 };
+
+    let ext = match[1].toLowerCase();
+    if (ext === "jpeg") ext = "jpg";
+    const buffer = Buffer.from(match[2], "base64");
+    const filename = `${params.filename || "upload-" + crypto.randomUUID()}.${ext}`;
+
+    const dirs = [
+      path.resolve("public", "uploads"),
+      path.resolve("dist", "client", "uploads"),
+      path.resolve("app", "dist", "client", "uploads"),
+    ];
+
+    for (const dir of dirs) {
+      try {
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, filename), buffer);
+      } catch (e) {}
+    }
+
+    return { url: `/uploads/${filename}` };
   });

@@ -78,8 +78,19 @@ export const getNavigationDataFn = createServerFn({ method: "GET" }).handler(
   },
 );
 
+let homepageCache: { data: any; timestamp: number } | null = null;
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds in-memory cache
+
+export function invalidateHomepageCache() {
+  homepageCache = null;
+}
+
 export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
   async () => {
+    if (homepageCache && Date.now() - homepageCache.timestamp < CACHE_TTL_MS) {
+      return homepageCache.data;
+    }
+
     const { getMongoDb } = await import("@/lib/db");
     const db = await getMongoDb();
 
@@ -183,18 +194,32 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       placementArticlesRaw.map((a) => [a.id || a._id?.toString(), a]),
     );
 
-    const heroArticles: DynamicArticle[] = heroPlacements
-      .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
-      .filter((a) => a && a.id);
+    const dedupeArticles = (list: DynamicArticle[]) => {
+      const seen = new Set<string>();
+      return list.filter((a) => {
+        if (!a || !a.id || seen.has(a.id)) return false;
+        seen.add(a.id);
+        return true;
+      });
+    };
 
-    const breakingNews: DynamicArticle[] = breakingPlacements
-      .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
-      .filter((a) => a && a.id);
+    const heroArticles: DynamicArticle[] = dedupeArticles(
+      heroPlacements
+        .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
+        .filter((a) => a && a.id),
+    );
 
-    const top10Articles: DynamicArticle[] = top10Placements
-      .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
-      .filter((a) => a && a.id)
-      .slice(0, 10);
+    const breakingNews: DynamicArticle[] = dedupeArticles(
+      breakingPlacements
+        .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
+        .filter((a) => a && a.id),
+    );
+
+    const top10Articles: DynamicArticle[] = dedupeArticles(
+      top10Placements
+        .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
+        .filter((a) => a && a.id),
+    ).slice(0, 10);
 
     // 3. Impact Articles
     const impactRaw = await db
@@ -231,21 +256,21 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
 
     const categoryArticlesRaw =
       sectionCategoryIds.length > 0 ||
-      targetCategoryNames.length > 0 ||
-      targetCategorySlugs.length > 0
+        targetCategoryNames.length > 0 ||
+        targetCategorySlugs.length > 0
         ? await db
-            .collection("articles")
-            .find({
-              status: "published",
-              $or: [
-                { category_id: { $in: sectionCategoryIds } },
-                { category: { $in: targetCategoryNames } },
-                { category_slug: { $in: targetCategorySlugs } },
-              ],
-            })
-            .sort({ publish_at: -1, created_at: -1 })
-            .limit(500)
-            .toArray()
+          .collection("articles")
+          .find({
+            status: "published",
+            $or: [
+              { category_id: { $in: sectionCategoryIds } },
+              { category: { $in: targetCategoryNames } },
+              { category_slug: { $in: targetCategorySlugs } },
+            ],
+          })
+          .sort({ publish_at: -1, created_at: -1 })
+          .limit(500)
+          .toArray()
         : [];
 
     const categorySections: HomepageSection[] = sectionsRaw
@@ -350,7 +375,7 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       episodes.find((e) => e.is_featured) || episodes[0] || null;
     const pastEpisodes = episodes.filter((e) => e.id !== featuredEpisode?.id);
 
-    return {
+    const result = {
       breakingNews,
       heroArticles,
       top10Articles,
@@ -362,6 +387,9 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       featuredEpisode,
       pastEpisodes,
     };
+
+    homepageCache = { data: result, timestamp: Date.now() };
+    return result;
   },
 );
 
@@ -537,25 +565,25 @@ export const getArticleBySlugFn = createServerFn({ method: "GET" })
       await Promise.all([
         article.category_id
           ? db
-              .collection("categories")
-              .findOne({ id: article.category_id } as any)
+            .collection("categories")
+            .findOne({ id: article.category_id } as any)
           : null,
         article.reporter_id
           ? db
-              .collection("reporters")
-              .findOne({ id: article.reporter_id } as any)
+            .collection("reporters")
+            .findOne({ id: article.reporter_id } as any)
           : null,
         article.category_id
           ? db
-              .collection("articles")
-              .find({
-                category_id: article.category_id,
-                slug: { $ne: article.slug },
-                status: "published",
-              })
-              .sort({ publish_at: -1, created_at: -1 })
-              .limit(3)
-              .toArray()
+            .collection("articles")
+            .find({
+              category_id: article.category_id,
+              slug: { $ne: article.slug },
+              status: "published",
+            })
+            .sort({ publish_at: -1, created_at: -1 })
+            .limit(3)
+            .toArray()
           : Promise.resolve([]),
         db
           .collection("articles")
@@ -591,19 +619,19 @@ export const getArticleBySlugFn = createServerFn({ method: "GET" })
       author: (article.author || "हरबोले डेस्क") as string,
       reporterProfile: reporter
         ? {
-            id: (reporter.id || reporter._id?.toString() || "") as string,
-            name: (reporter.name || "") as string,
-            email: (reporter.email || "") as string,
-            mobile_number: (reporter.mobile_number || null) as string | null,
-            aadhaar_number: (reporter.aadhaar_number || null) as string | null,
-            pan_number: (reporter.pan_number || null) as string | null,
-            youtube_link: (reporter.youtube_link || null) as string | null,
-            linkedin_link: (reporter.linkedin_link || null) as string | null,
-            instagram_link: (reporter.instagram_link || null) as string | null,
-            profile_image: (reporter.profile_image || null) as string | null,
-            status: !!reporter.status,
-            created_at: (reporter.created_at || "") as string,
-          }
+          id: (reporter.id || reporter._id?.toString() || "") as string,
+          name: (reporter.name || "") as string,
+          email: (reporter.email || "") as string,
+          mobile_number: (reporter.mobile_number || null) as string | null,
+          aadhaar_number: (reporter.aadhaar_number || null) as string | null,
+          pan_number: (reporter.pan_number || null) as string | null,
+          youtube_link: (reporter.youtube_link || null) as string | null,
+          linkedin_link: (reporter.linkedin_link || null) as string | null,
+          instagram_link: (reporter.instagram_link || null) as string | null,
+          profile_image: (reporter.profile_image || null) as string | null,
+          status: !!reporter.status,
+          created_at: (reporter.created_at || "") as string,
+        }
         : null,
     };
 

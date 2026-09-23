@@ -1,13 +1,15 @@
+import { saveMediaFileFn } from "@/lib/admin-queries";
+
 /**
  * Uploads media without any external storage dependency.
- * Compresses the image to high-quality web-ready dimensions (max 1280px, 82% quality)
- * and returns the optimized Data URL to be stored directly in MongoDB.
+ * Compresses the image and saves as static file in public/uploads/
+ * Returning clean static URL: /uploads/...
  */
 export async function uploadMedia(
   file: File,
   _folder = "uploads",
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
+  const base64Url: string = await new Promise((resolve, reject) => {
     // If it's not an image (e.g. video/pdf), read as standard data URL
     if (!file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -22,8 +24,8 @@ export async function uploadMedia(
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const MAX_WIDTH = 1280;
-        const MAX_HEIGHT = 1280;
+        const MAX_WIDTH = 900;
+        const MAX_HEIGHT = 900;
         let width = img.width;
         let height = img.height;
 
@@ -47,8 +49,8 @@ export async function uploadMedia(
         }
 
         ctx.drawImage(img, 0, 0, width, height);
-        // Compress as JPEG 0.82 quality (~80KB-140KB)
-        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        // Compress as JPEG 0.78 quality (~40KB)
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.78);
         resolve(compressedDataUrl);
       };
       img.onerror = () => {
@@ -59,4 +61,23 @@ export async function uploadMedia(
     reader.onerror = (err) => reject(err);
     reader.readAsDataURL(file);
   });
+
+  if (base64Url && base64Url.startsWith("data:image/")) {
+    try {
+      const cleanName = (file.name || "upload")
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^a-zA-Z0-9_-]/g, "");
+      const res = await saveMediaFileFn({
+        data: {
+          base64: base64Url,
+          filename: `${cleanName}-${Date.now()}`,
+        },
+      });
+      if (res?.url) return res.url;
+    } catch (e) {
+      console.warn("Failed to save media file to server disk, using base64 fallback:", e);
+    }
+  }
+
+  return base64Url;
 }

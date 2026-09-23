@@ -23,12 +23,12 @@ if (fs.existsSync(indexMjsPath)) {
 const mongodbMjsPath = path.join(distDir, 'server', '_libs', 'mongodb.mjs');
 if (fs.existsSync(mongodbMjsPath)) {
   let content = fs.readFileSync(mongodbMjsPath, 'utf8');
-  
+
   // Add crypto import at top if missing
   if (!content.includes('import nodeCryptoBuiltin from "node:crypto";')) {
     content = 'import nodeCryptoBuiltin from "node:crypto";\n' + content;
   }
-  
+
   // Replace require("crypto") with nodeCryptoBuiltin
   if (content.includes('nodeCrypto = require("crypto");')) {
     content = content.replace(
@@ -37,7 +37,7 @@ if (fs.existsSync(mongodbMjsPath)) {
     );
     console.log('✅ Replaced dynamic require("crypto") with static import in mongodb.mjs');
   }
-  
+
   fs.writeFileSync(mongodbMjsPath, content, 'utf8');
 }
 
