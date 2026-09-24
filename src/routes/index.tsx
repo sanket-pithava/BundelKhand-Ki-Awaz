@@ -67,6 +67,18 @@ function HomePage() {
 
   const isFiltered = !!(search.district || search.category);
 
+  // Partition Homepage Ads: Top (Placement 1) and Bottom/Niche (Placement 2)
+  const allHomeAds = homeData?.ads || [];
+  const explicitBottomAd = allHomeAds.find((a: any) => a.placement === "home_bottom");
+  const topAds = explicitBottomAd
+    ? allHomeAds.filter((a: any) => a.id !== explicitBottomAd.id)
+    : allHomeAds.length > 1
+      ? [allHomeAds[0]]
+      : allHomeAds;
+  const bottomAd =
+    explicitBottomAd ||
+    (allHomeAds.length > 1 ? allHomeAds[1] : allHomeAds[0] || null);
+
   return (
     <div className="min-h-screen bg-paper">
       <div className="max-w-[480px] md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto bg-paper relative">
@@ -134,7 +146,7 @@ function HomePage() {
                   <ScrollableRow className="gap-5 px-4 pb-2">
                     {homeData.top10Articles.map((a, i) => (
                       <div
-                        key={`${a.slug}-${i}`}
+                        key={a.slug}
                         className="shrink-0 w-[85%] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-13px)] lg:w-[calc(25%-15px)] snap-start relative pt-3"
                       >
                         <span className="absolute -top-1 -left-1 text-[80px] leading-none font-bold text-gold/25 italic select-none font-sans">
@@ -154,9 +166,9 @@ function HomePage() {
                 <NewsTicker items={homeData.breakingNews} invert />
               ) : null}
 
-              {/* Ads Carousel */}
-              {homeData?.ads && homeData.ads.length > 0 && (
-                <AutoScrollingAds ads={homeData.ads} />
+              {/* Ads Carousel / Top Ad (Placement 1) */}
+              {topAds && topAds.length > 0 && (
+                <AutoScrollingAds ads={topAds} />
               )}
 
               {/* DYNAMIC CATEGORY SECTIONS AND STATIC WIDGETS */}
@@ -247,6 +259,13 @@ function HomePage() {
                   featuredEpisode={homeData?.featuredEpisode}
                   pastEpisodes={homeData?.pastEpisodes || []}
                 />
+
+                {/* Lower Ad Banner (Placement 2 - Niche ki Ad) */}
+                {bottomAd && (
+                  <div className="my-3">
+                    <AdBanner {...bottomAd} />
+                  </div>
+                )}
 
                 {/* Slot 4: Dynamic Section 4 */}
                 {homeData?.categorySections?.[4] && (
@@ -409,9 +428,9 @@ function CategoryBand({
     <section className="py-8 md:py-12">
       <SectionHeader hindi={hindi} english={english} href={href} />
       <ScrollableRow className="gap-4 md:gap-6 px-4 md:px-6 pb-2">
-        {items.map((a, idx) => (
+        {items.map((a) => (
           <div
-            key={`${a.slug}-${idx}`}
+            key={a.slug}
             className="shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start"
           >
             <ArticleCard article={a} />

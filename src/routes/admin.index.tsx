@@ -340,9 +340,14 @@ const RESOURCES: Resource[] = [
       },
       {
         key: "placement",
-        label: "Placement",
+        label: "Ad Placement (विज्ञापन कहाँ दिखाना है)",
         type: "select",
-        options: ["home", "article", "category"],
+        options: [
+          { value: "home", label: "Homepage - Top Scroller (होमपेज - ऊपर)" },
+          { value: "home_bottom", label: "Homepage - Bottom Banner (होमपेज - नीचे)" },
+          { value: "detail", label: "Detail Page - Middle (लेख डिटेल पेज - बीच में)" },
+          { value: "detail_bottom", label: "Detail Page - Bottom (लेख डिटेल पेज - नीचे)" },
+        ],
       },
       {
         key: "image_url",
@@ -594,7 +599,15 @@ function ResourceManager({ resource }: { resource: Resource }) {
                 "(untitled)";
               const meta = [
                 r.status !== undefined ? (r.status ? "Active" : "Inactive") : null,
-                r.placement,
+                r.placement === "home" || r.placement === "home_top"
+                  ? "Homepage (Top)"
+                  : r.placement === "home_bottom"
+                    ? "Homepage (Bottom)"
+                    : r.placement === "detail" || r.placement === "article" || r.placement === "detail_middle"
+                      ? "Detail Page (Middle)"
+                      : r.placement === "detail_bottom"
+                        ? "Detail Page (Bottom)"
+                        : r.placement,
                 r.variant,
                 r.tag,
                 r.article_limit ? `${r.article_limit} articles` : null,
@@ -926,7 +939,11 @@ export function EditDrawer({
                   </label>
                   <select
                     id={id}
-                    value={(v as string) ?? ""}
+                    value={
+                      f.key === "placement" && v === "article"
+                        ? "detail"
+                        : ((v as string) ?? "")
+                    }
                     onChange={(e) => set(f.key, e.target.value)}
                     className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 text-sm"
                   >

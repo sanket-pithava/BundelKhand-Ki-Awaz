@@ -60,6 +60,11 @@ export const adminSaveResourceFn = createServerFn({ method: "POST" })
           { upsert: true },
         );
 
+      try {
+        const { invalidateHomepageCache } = await import("@/lib/queries");
+        invalidateHomepageCache();
+      } catch (e) {}
+
       return { success: true, id: incomingId };
     } else {
       const newId = crypto.randomUUID();
@@ -72,6 +77,10 @@ export const adminSaveResourceFn = createServerFn({ method: "POST" })
       };
 
       await db.collection(table).insertOne(newDoc as any);
+      try {
+        const { invalidateHomepageCache } = await import("@/lib/queries");
+        invalidateHomepageCache();
+      } catch (e) {}
       return { success: true, id: newId };
     }
   });
@@ -84,6 +93,12 @@ export const adminDeleteResourceFn = createServerFn({ method: "POST" })
     await db.collection(params.table).deleteOne({
       $or: [{ id: params.id }, { _id: params.id }],
     } as any);
+
+    try {
+      const { invalidateHomepageCache } = await import("@/lib/queries");
+      invalidateHomepageCache();
+    } catch (e) {}
+
     return { success: true };
   });
 
@@ -294,7 +309,7 @@ export const adminSearchArticlesForPickerFn = createServerFn({ method: "POST" })
     }));
   });
 
-// 12. Save Uploaded Media to Static Files
+// 12. Save Uploaded Media to Static Files & MongoDB Backup
 export const saveMediaFileFn = createServerFn({ method: "POST" })
   .validator((params: { base64: string; filename?: string }) => params)
   .handler(async ({ data: params }) => {
@@ -310,18 +325,46 @@ export const saveMediaFileFn = createServerFn({ method: "POST" })
     const buffer = Buffer.from(match[2], "base64");
     const filename = `${params.filename || "upload-" + crypto.randomUUID()}.${ext}`;
 
-    const dirs = [
-      path.resolve("public", "uploads"),
-      path.resolve("dist", "client", "uploads"),
-      path.resolve("app", "dist", "client", "uploads"),
+    const candidateDirs = [
+      path.resolve(process.cwd(), "public", "uploads"),
+      path.resolve(process.cwd(), "dist", "client", "uploads"),
+      path.resolve(process.cwd(), "app", "dist", "client", "uploads"),
+      path.resolve(process.cwd(), "uploads"),
     ];
 
-    for (const dir of dirs) {
+    for (const dir of candidateDirs) {
       try {
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         fs.writeFileSync(path.join(dir, filename), buffer);
       } catch (e) {}
     }
 
+    // Backup to MongoDB media collection for permanent cross-deployment storage
+    try {
+      const { getMongoDb } = await import("@/lib/db");
+      const db = await getMongoDb();
+      await db.collection("media").updateOne(
+        { filename },
+        {
+          $set: {
+            filename,
+            contentType: `image/${ext === "jpg" ? "jpeg" : ext}`,
+            data: buffer,
+            size: buffer.length,
+            created_at: new Date(),
+          },
+        },
+        { upsert: true }
+      );
+    } catch (dbErr) {
+      console.warn("MongoDB media backup warning:", dbErr);
+    }
+
+    try {
+      const { invalidateHomepageCache } = await import("@/lib/queries");
+      invalidateHomepageCache();
+    } catch (e) {}
+
     return { url: `/uploads/${filename}` };
   });
+

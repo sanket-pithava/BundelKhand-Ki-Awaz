@@ -111,7 +111,10 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
         .toArray(),
       db
         .collection("ads")
-        .find({ is_active: true, placement: "home" })
+        .find({
+          is_active: true,
+          placement: { $in: ["home", "homepage", "home_top", "home_bottom"] },
+        })
         .sort({ sort_order: 1 })
         .toArray(),
       db
@@ -194,32 +197,18 @@ export const getHomepageDataFn = createServerFn({ method: "GET" }).handler(
       placementArticlesRaw.map((a) => [a.id || a._id?.toString(), a]),
     );
 
-    const dedupeArticles = (list: DynamicArticle[]) => {
-      const seen = new Set<string>();
-      return list.filter((a) => {
-        if (!a || !a.id || seen.has(a.id)) return false;
-        seen.add(a.id);
-        return true;
-      });
-    };
+    const heroArticles: DynamicArticle[] = heroPlacements
+      .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
+      .filter((a) => a && a.id);
 
-    const heroArticles: DynamicArticle[] = dedupeArticles(
-      heroPlacements
-        .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
-        .filter((a) => a && a.id),
-    );
+    const breakingNews: DynamicArticle[] = breakingPlacements
+      .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
+      .filter((a) => a && a.id);
 
-    const breakingNews: DynamicArticle[] = dedupeArticles(
-      breakingPlacements
-        .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
-        .filter((a) => a && a.id),
-    );
-
-    const top10Articles: DynamicArticle[] = dedupeArticles(
-      top10Placements
-        .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
-        .filter((a) => a && a.id),
-    ).slice(0, 10);
+    const top10Articles: DynamicArticle[] = top10Placements
+      .map((p) => transformArticle(placementArticleMap.get(p.article_id)))
+      .filter((a) => a && a.id)
+      .slice(0, 10);
 
     // 3. Impact Articles
     const impactRaw = await db
@@ -561,7 +550,7 @@ export const getArticleBySlugFn = createServerFn({ method: "GET" })
 
     if (!article) return null;
 
-    const [category, reporter, relatedArticlesRaw, prevArticle, nextArticle] =
+    const [category, reporter, relatedArticlesRaw, prevArticle, nextArticle, detailAdsRaw] =
       await Promise.all([
         article.category_id
           ? db
@@ -605,7 +594,50 @@ export const getArticleBySlugFn = createServerFn({ method: "GET" })
           .limit(1)
           .toArray()
           .then((res) => res[0] || null),
+        db
+          .collection("ads")
+          .find({
+            is_active: true,
+            placement: { $in: ["detail", "article", "detail_middle", "detail_bottom"] },
+          })
+          .sort({ sort_order: 1 })
+          .limit(10)
+          .toArray(),
       ]);
+
+    // Fallback to active ads if no detail-specific ads configured
+    let adsToUse = detailAdsRaw;
+    if (!adsToUse || adsToUse.length === 0) {
+      adsToUse = await db
+        .collection("ads")
+        .find({ is_active: true, placement: { $in: ["home", "homepage", "home_top", "home_bottom"] } })
+        .sort({ sort_order: 1 })
+        .limit(2)
+        .toArray();
+    }
+
+    const explicitDetailBottom = adsToUse.find((a: any) => a.placement === "detail_bottom");
+    const middleAds = explicitDetailBottom
+      ? adsToUse.filter((a: any) => a.id !== explicitDetailBottom.id)
+      : adsToUse;
+
+    const orderedAds = explicitDetailBottom
+      ? [middleAds[0] || explicitDetailBottom, explicitDetailBottom]
+      : adsToUse;
+
+    const ads = (orderedAds || []).map((ad: any) => ({
+      id: (ad.id || ad._id?.toString() || "") as string,
+      title: (ad.title || "Advertisement") as string,
+      subtitle: (ad.subtitle || null) as string | null,
+      eyebrow: (ad.eyebrow || "Sponsored") as string,
+      cta: (ad.cta || "Explore") as string,
+      sponsor: (ad.sponsor || null) as string | null,
+      variant: (ad.variant || "gold") as string,
+      placement: (ad.placement || "detail") as string,
+      image: (ad.image_url || "") as string,
+      mobileImage: (ad.mobile_image_url || "") as string,
+      website_url: (ad.website_url || ad.link_url || null) as string | null,
+    }));
 
     const formattedArticle = {
       title: (article.title || "") as string,
@@ -647,6 +679,7 @@ export const getArticleBySlugFn = createServerFn({ method: "GET" })
       relatedArticles,
       prevArticle: prevArticle ? { title: (prevArticle.title || "") as string, slug: (prevArticle.slug || "") as string } : null,
       nextArticle: nextArticle ? { title: (nextArticle.title || "") as string, slug: (nextArticle.slug || "") as string } : null,
+      ads,
     };
   });
 

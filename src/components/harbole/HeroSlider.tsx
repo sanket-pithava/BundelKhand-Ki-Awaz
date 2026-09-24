@@ -45,7 +45,7 @@ export function HeroSlider({ slides }: { slides: DynamicArticle[] }) {
 
             return (
               <Link
-                key={`${s.slug}-${idx}`}
+                key={s.slug}
                 to="/article/$slug"
                 params={{ slug: s.slug }}
                 className={`absolute inset-0 transition-opacity duration-700 block ${

@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Bookmark, Share2, Type, Clock } from "lucide-react";
 import { Header } from "@/components/harbole/Header";
 import { BottomNav } from "@/components/harbole/BottomNav";
-import { ALL_ARTICLES, TOP10, IMAGES } from "@/lib/harbole-data";
+import { ALL_ARTICLES, TOP10 } from "@/lib/harbole-data";
 import { AdBanner } from "@/components/harbole/AdBanner";
 import { getArticleBySlugFn } from "@/lib/queries";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/article/$slug")({
     relatedArticles: any[];
     prevArticle: any;
     nextArticle: any;
+    ads?: any[];
   }> => {
     let result: Awaited<ReturnType<typeof getArticleBySlugFn>> = null;
     try {
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/article/$slug")({
       relatedArticles: [],
       prevArticle: null,
       nextArticle: null,
+      ads: [],
     };
   },
   head: ({ loaderData }) => ({
@@ -72,8 +74,11 @@ export const Route = createFileRoute("/article/$slug")({
 });
 
 function ArticlePage() {
-  const { article, relatedArticles, prevArticle, nextArticle } =
+  const { article, relatedArticles, prevArticle, nextArticle, ads = [] } =
     Route.useLoaderData();
+
+  const adSlot1 = ads[0] || null;
+  const adSlot2 = ads[1] || (ads.length === 1 ? ads[0] : null);
 
   return (
     <div className="min-h-screen bg-paper">
@@ -302,16 +307,20 @@ function ArticlePage() {
             </div>
           )}
 
-          {/* In-article ad */}
-          <AdBanner
-            variant="gold"
-            sponsor="Bundeli Bazaar"
-            eyebrow="Sponsored"
-            title="स्थानीय कारीगरों का बाज़ार — सीधे आपके दरवाज़े"
-            subtitle="हर खरीदारी पर एक कारीगर परिवार को मिले सही दाम।"
-            cta="Explore"
-            image={IMAGES.cultureTemple}
-          />
+          {/* In-article dynamic ad (Slot 1) */}
+          {adSlot1 && (
+            <AdBanner
+              variant={adSlot1.variant || "gold"}
+              sponsor={adSlot1.sponsor}
+              eyebrow={adSlot1.eyebrow || "Sponsored"}
+              title={adSlot1.title}
+              subtitle={adSlot1.subtitle}
+              cta={adSlot1.cta || "Explore"}
+              image={adSlot1.image}
+              mobileImage={adSlot1.mobileImage}
+              website_url={adSlot1.website_url}
+            />
+          )}
 
           <section className="mt-8 px-4 md:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row gap-4 border-y border-navy/10 py-6 mb-8 justify-between">
@@ -383,15 +392,20 @@ function ArticlePage() {
             )}
           </section>
 
-          <AdBanner
-            variant="navy"
-            sponsor="Harbole+"
-            eyebrow="Membership"
-            title="विज्ञापन-मुक्त पढ़ें, गहराई से जुड़ें"
-            subtitle="हरबोले+ के सदस्य बनिए — सिर्फ ₹49/माह।"
-            cta="Try Free"
-            image={IMAGES.amitTripathi}
-          />
+          {/* Bottom dynamic ad (Slot 2) */}
+          {adSlot2 && (
+            <AdBanner
+              variant={adSlot2.variant || "navy"}
+              sponsor={adSlot2.sponsor}
+              eyebrow={adSlot2.eyebrow || "Membership"}
+              title={adSlot2.title}
+              subtitle={adSlot2.subtitle}
+              cta={adSlot2.cta || "Try Free"}
+              image={adSlot2.image}
+              mobileImage={adSlot2.mobileImage}
+              website_url={adSlot2.website_url}
+            />
+          )}
         </main>
         <BottomNav />
       </div>
